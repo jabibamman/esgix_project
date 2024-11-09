@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'core/app_config.dart';
 import 'layout/layouts.dart';
 
-void main() {
+void main() async {
+  await AppConfig.loadEnv();
   runApp(const EsgiXApp());
 }
 

@@ -1,23 +1,21 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../app_config.dart';
 import '../models/user_model.dart';
 import '../exceptions/auth_exceptions.dart';
 
 class AuthService {
   final Dio dio;
   final FlutterSecureStorage secureStorage;
-  final String baseUrl = dotenv.env['BASE_URL'] ?? 'https://esgix.tech';
-  final String apiKey = dotenv.env['API_KEY'] ?? 'default-api-key';
 
   AuthService({Dio? dioClient, FlutterSecureStorage? storage})
       : dio = dioClient ?? Dio(),
         secureStorage = storage ?? FlutterSecureStorage() {
     dio.options = BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: AppConfig.baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        'x-api-key': AppConfig.apiKey,
       },
     );
   }
