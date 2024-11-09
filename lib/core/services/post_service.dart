@@ -41,7 +41,8 @@ class PostService {
         throw PostCreationException("Erreur lors de la création du post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la création du post';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la création du post';
       throw PostCreationException(message);
     }
   }
@@ -64,7 +65,8 @@ class PostService {
         throw PostFetchException("Erreur lors de la récupération des posts.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération des posts';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération des posts';
       throw PostFetchException(message);
     }
   }
@@ -79,12 +81,14 @@ class PostService {
         throw PostFetchException("Erreur lors de la récupération du post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération du post';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération du post';
       throw PostFetchException(message);
     }
   }
 
-  Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
+  Future<PostModel> updatePost(String postId, String content,
+      {String? imageUrl}) async {
     try {
       final token = await _getToken();
       final response = await dio.put(
@@ -101,7 +105,8 @@ class PostService {
         throw PostUpdateException("Erreur lors de la mise à jour du post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la mise à jour du post';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la mise à jour du post';
       throw PostUpdateException(message);
     }
   }
@@ -120,7 +125,8 @@ class PostService {
         throw PostDeletionException("Erreur lors de la suppression du post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la suppression du post';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la suppression du post';
       throw PostDeletionException(message);
     }
   }
@@ -140,7 +146,8 @@ class PostService {
         throw PostSearchException("Erreur lors de la recherche des posts.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la recherche de posts';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la recherche de posts';
       throw PostSearchException(message);
     }
   }
@@ -153,7 +160,8 @@ class PostService {
         throw PostLikeException("Erreur lors de l'ajout d'un like au post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de l\'ajout d\'un like';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de l\'ajout d\'un like';
       throw PostLikeException(message);
     }
   }
