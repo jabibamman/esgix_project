@@ -20,11 +20,19 @@ class PostService {
     );
   }
 
+  Future<String> _getToken() async {
+    return await secureStorage.read(key: 'auth_token') ?? '';
+  }
+
   Future<PostModel> createPost(String content, {String? imageUrl}) async {
     try {
+      final token = await _getToken();
       final response = await dio.post(
         '/posts',
         data: {'content': content, 'imageUrl': imageUrl},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
       );
 
       if (response.statusCode == 200) {
@@ -78,9 +86,13 @@ class PostService {
 
   Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
     try {
+      final token = await _getToken();
       final response = await dio.put(
         '/posts/$postId',
         data: {'content': content, 'imageUrl': imageUrl},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
       );
 
       if (response.statusCode == 200) {
@@ -96,7 +108,13 @@ class PostService {
 
   Future<void> deletePost(String postId) async {
     try {
-      final response = await dio.delete('/posts/$postId');
+      final token = await _getToken();
+      final response = await dio.delete(
+        '/posts/$postId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
 
       if (response.statusCode != 200) {
         throw PostDeletionException("Erreur lors de la suppression du post.");

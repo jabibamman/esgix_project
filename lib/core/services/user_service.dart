@@ -20,6 +20,10 @@ class UserService {
     );
   }
 
+  Future<String> _getToken() async {
+    return await secureStorage.read(key: 'auth_token') ?? '';
+  }
+
   Future<UserModel> getUserProfile() async {
     try {
       final response = await dio.get('/users/profile');
@@ -38,9 +42,13 @@ class UserService {
 
   Future<UserModel> updateUserProfile(UserModel user) async {
     try {
+      final token = await _getToken();
       final response = await dio.put(
         '/users/${user.id}',
         data: user.toJson(),
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
       );
       if (response.statusCode == 200) {
         return UserModel.fromJson(response.data['record']);
