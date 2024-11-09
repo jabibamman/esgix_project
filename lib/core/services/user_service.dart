@@ -91,7 +91,7 @@ class UserService {
       } else {
         throw UserLikedPostsFetchException("Erreur lors de la récupération des posts aimés.");
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération des posts aimés';
       throw UserLikedPostsFetchException(message);
     } catch (e) {
