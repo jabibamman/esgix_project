@@ -35,13 +35,16 @@ class AuthService {
         dio.options.headers['Authorization'] = 'Bearer $token';
         return token;
       } else {
-        throw LoginException("Échec de la connexion. Vérifiez vos identifiants.");
+        throw LoginException(
+            "Échec de la connexion. Vérifiez vos identifiants.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la connexion';
+      final message =
+          e.response?.data['message'] ?? 'Erreur réseau lors de la connexion';
       throw LoginException(message);
     } catch (e) {
-      throw LoginException("Erreur inattendue lors de la connexion : ${e.toString()}");
+      throw LoginException(
+          "Erreur inattendue lors de la connexion : ${e.toString()}");
     }
   }
 
@@ -53,10 +56,12 @@ class AuthService {
         throw RegistrationException("Échec de l'inscription.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de l\'inscription';
+      final message =
+          e.response?.data['message'] ?? 'Erreur réseau lors de l\'inscription';
       throw RegistrationException(message);
     } catch (e) {
-      throw RegistrationException("Erreur inattendue lors de l'inscription : ${e.toString()}");
+      throw RegistrationException(
+          "Erreur inattendue lors de l'inscription : ${e.toString()}");
     }
   }
 
@@ -70,10 +75,12 @@ class AuthService {
         throw ProfileFetchException("Impossible de récupérer le profil.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération du profil';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération du profil';
       throw ProfileFetchException(message);
     } catch (e) {
-      throw ProfileFetchException("Erreur inattendue lors de la récupération du profil : ${e.toString()}");
+      throw ProfileFetchException(
+          "Erreur inattendue lors de la récupération du profil : ${e.toString()}");
     }
   }
 
