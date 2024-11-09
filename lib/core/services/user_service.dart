@@ -29,10 +29,12 @@ class UserService {
         throw ProfileFetchException("Impossible de récupérer le profil.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération du profil';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération du profil';
       throw ProfileFetchException(message);
     } catch (e) {
-      throw ProfileFetchException("Erreur inattendue lors de la récupération du profil : ${e.toString()}");
+      throw ProfileFetchException(
+          "Erreur inattendue lors de la récupération du profil : ${e.toString()}");
     }
   }
 
@@ -45,17 +47,21 @@ class UserService {
       if (response.statusCode == 200) {
         return UserModel.fromJson(response.data['record']);
       } else {
-        throw ProfileUpdateException("Erreur lors de la mise à jour du profil.");
+        throw ProfileUpdateException(
+            "Erreur lors de la mise à jour du profil.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la mise à jour du profil';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la mise à jour du profil';
       throw ProfileUpdateException(message);
     } catch (e) {
-      throw ProfileUpdateException("Erreur inattendue lors de la mise à jour du profil : ${e.toString()}");
+      throw ProfileUpdateException(
+          "Erreur inattendue lors de la mise à jour du profil : ${e.toString()}");
     }
   }
 
-  Future<List<dynamic>> getUserPosts(String userId, {int page = 0, int offset = 10}) async {
+  Future<List<dynamic>> getUserPosts(String userId,
+      {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
         '/user/$userId/posts',
@@ -67,17 +73,21 @@ class UserService {
       if (response.statusCode == 200) {
         return response.data['posts'] as List<dynamic>;
       } else {
-        throw UserPostsFetchException("Erreur lors de la récupération des posts de l'utilisateur.");
+        throw UserPostsFetchException(
+            "Erreur lors de la récupération des posts de l'utilisateur.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération des posts';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération des posts';
       throw UserPostsFetchException(message);
     } catch (e) {
-      throw UserPostsFetchException("Erreur inattendue lors de la récupération des posts : ${e.toString()}");
+      throw UserPostsFetchException(
+          "Erreur inattendue lors de la récupération des posts : ${e.toString()}");
     }
   }
 
-  Future<List<dynamic>> getUserLikedPosts(String userId, {int page = 0, int offset = 10}) async {
+  Future<List<dynamic>> getUserLikedPosts(String userId,
+      {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
         '/user/$userId/likes',
@@ -89,13 +99,16 @@ class UserService {
       if (response.statusCode == 200) {
         return response.data['liked_posts'] as List<dynamic>;
       } else {
-        throw UserLikedPostsFetchException("Erreur lors de la récupération des posts aimés.");
+        throw UserLikedPostsFetchException(
+            "Erreur lors de la récupération des posts aimés.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération des posts aimés';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération des posts aimés';
       throw UserLikedPostsFetchException(message);
     } catch (e) {
-      throw UserLikedPostsFetchException("Erreur inattendue lors de la récupération des posts aimés : ${e.toString()}");
+      throw UserLikedPostsFetchException(
+          "Erreur inattendue lors de la récupération des posts aimés : ${e.toString()}");
     }
   }
 
@@ -105,13 +118,16 @@ class UserService {
       if (response.statusCode == 200) {
         return response.data['users'] as List<dynamic>;
       } else {
-        throw UsersWhoLikedPostFetchException("Erreur lors de la récupération des utilisateurs ayant aimé le post.");
+        throw UsersWhoLikedPostFetchException(
+            "Erreur lors de la récupération des utilisateurs ayant aimé le post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération des utilisateurs ayant aimé';
+      final message = e.response?.data['message'] ??
+          'Erreur réseau lors de la récupération des utilisateurs ayant aimé';
       throw UsersWhoLikedPostFetchException(message);
     } catch (e) {
-      throw UsersWhoLikedPostFetchException("Erreur inattendue lors de la récupération des utilisateurs ayant aimé : ${e.toString()}");
+      throw UsersWhoLikedPostFetchException(
+          "Erreur inattendue lors de la récupération des utilisateurs ayant aimé : ${e.toString()}");
     }
   }
 }
