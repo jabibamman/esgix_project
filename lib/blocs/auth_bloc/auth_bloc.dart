@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/exceptions/auth_exceptions.dart';
 import '../../core/services/auth_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -18,7 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await authService.login(event.email, event.password);
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError("Erreur de connexion : ${e.toString()}"));
+      emit(AuthError(e is LoginException ? e.message : e.toString()));
     }
   }
 

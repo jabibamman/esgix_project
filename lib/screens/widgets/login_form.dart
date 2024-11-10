@@ -95,6 +95,21 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: 24.0),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
+              if (state is AuthError) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    state.message,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
               if (state is AuthLoading) {
                 return Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
