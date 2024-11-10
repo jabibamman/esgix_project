@@ -26,14 +26,14 @@ class LoginForm extends StatelessWidget {
           Center(
             child: Image.asset(
               AppImages.logo,
-              width: 50,
-              height: 50,
+              width: 70,
+              height: 70,
             ),
           ),
           const SizedBox(height: 16.0),
           Center(
             child: Text(
-              'Se connecter à Twitter',
+              'Log in to Twitter',
               style: TextStyles.headline1,
             ),
           ),
@@ -121,7 +121,7 @@ class LoginForm extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 30.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/app_config.dart';
 import 'core/services/auth_service.dart';
 import 'blocs/auth_bloc/auth_bloc.dart';
-import 'screens/login/login_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() async {
   await AppConfig.loadEnv();
