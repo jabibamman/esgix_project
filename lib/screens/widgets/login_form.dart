@@ -52,7 +52,8 @@ class LoginForm extends StatelessWidget {
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary, width: 2.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -79,7 +80,8 @@ class LoginForm extends StatelessWidget {
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary, width: 2.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             ),
             obscureText: true,
             validator: (value) {
@@ -111,7 +113,8 @@ class LoginForm extends StatelessWidget {
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoading) {
-                return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                return Center(
+                    child: CircularProgressIndicator(color: AppColors.primary));
               }
               return SizedBox(
                 width: double.infinity,
@@ -130,7 +133,8 @@ class LoginForm extends StatelessWidget {
                   ),
                   child: Text(
                     'Log in',
-                    style: TextStyles.bodyText1.copyWith(color: AppColors.white),
+                    style:
+                        TextStyles.bodyText1.copyWith(color: AppColors.white),
                   ),
                 ),
               );
@@ -141,10 +145,11 @@ class LoginForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () { },
+                onTap: () {},
                 child: Text(
                   'Forgot password?',
-                  style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
+                  style:
+                      TextStyles.bodyText2.copyWith(color: AppColors.primary),
                 ),
               ),
               const SizedBox(width: 8.0),
@@ -154,10 +159,11 @@ class LoginForm extends StatelessWidget {
               ),
               const SizedBox(width: 8.0),
               GestureDetector(
-                onTap: () { },
+                onTap: () {},
                 child: Text(
                   'Sign up for Twitter',
-                  style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
+                  style:
+                      TextStyles.bodyText2.copyWith(color: AppColors.primary),
                 ),
               ),
             ],

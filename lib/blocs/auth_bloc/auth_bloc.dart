@@ -13,7 +13,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CheckAuthenticationStatus>(_onCheckAuthenticationStatus);
   }
 
-  Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLoginRequested(
+      LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       final user = await authService.login(event.email, event.password);
@@ -23,12 +24,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLogoutRequested(
+      LogoutRequested event, Emitter<AuthState> emit) async {
     await authService.logout();
     emit(AuthUnauthenticated());
   }
 
-  Future<void> _onCheckAuthenticationStatus(CheckAuthenticationStatus event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthenticationStatus(
+      CheckAuthenticationStatus event, Emitter<AuthState> emit) async {
     final isLoggedIn = await authService.isLoggedIn();
     if (isLoggedIn) {
       final user = await authService.getUserProfile();
