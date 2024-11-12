@@ -20,7 +20,7 @@ class AuthService {
     );
   }
 
-  Future<String> login(String email, String password) async {
+  Future<UserModel> login(String email, String password) async {
     try {
       final response = await dio.post('/auth/login', data: {
         'email': email,
@@ -31,7 +31,7 @@ class AuthService {
         final token = response.data['token'];
         await _persistToken(token);
         dio.options.headers['Authorization'] = 'Bearer $token';
-        return token;
+        return UserModel.fromJson(response.data['record']);
       } else {
         throw LoginException(
             "Échec de la connexion. Vérifiez vos identifiants.");
@@ -97,5 +97,9 @@ class AuthService {
 
   Future<void> _clearToken() async {
     await secureStorage.delete(key: 'auth_token');
+  }
+
+  Future<bool> isLoggedIn() {
+    return secureStorage.read(key: 'auth_token').then((token) => token != null);
   }
 }
