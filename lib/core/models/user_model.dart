@@ -1,30 +1,30 @@
 class UserModel {
-  final String apiKey;
-  final String avatar;
-  final String collectionId;
-  final String collectionName;
-  final String created;
+  final String? apiKey;
+  final String? avatar;
+  final String? collectionId;
+  final String? collectionName;
+  final String? created;
   final String description;
   final String email;
-  final bool emailVisibility;
-  final String id;
-  final String updated;
+  final bool? emailVisibility;
+  final String? id;
+  final String? updated;
   final String username;
-  final bool verified;
+  final bool? verified;
 
   UserModel({
-    required this.apiKey,
-    required this.avatar,
-    required this.collectionId,
-    required this.collectionName,
-    required this.created,
-    required this.description,
+    this.apiKey,
+    this.avatar,
+    this.collectionId,
+    this.collectionName,
+    this.created,
+    this.description = '',
     required this.email,
-    required this.emailVisibility,
-    required this.id,
-    required this.updated,
+    this.emailVisibility,
+    this.id,
+    this.updated,
     required this.username,
-    required this.verified,
+    this.verified,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -46,18 +46,18 @@ class UserModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'api_key': apiKey,
-      'avatar': avatar,
-      'collectionId': collectionId,
-      'collectionName': collectionName,
-      'created': created,
-      'description': description,
       'email': email,
-      'emailVisibility': emailVisibility,
-      'id': id,
-      'updated': updated,
       'username': username,
-      'verified': verified,
+      if (avatar != null) 'avatar': avatar,
+      if (apiKey != null) 'api_key': apiKey,
+      if (collectionId != null) 'collectionId': collectionId,
+      if (collectionName != null) 'collectionName': collectionName,
+      if (created != null) 'created': created,
+      if (description.isNotEmpty) 'description': description,
+      if (emailVisibility != null) 'emailVisibility': emailVisibility,
+      if (id != null) 'id': id,
+      if (updated != null) 'updated': updated,
+      if (verified != null) 'verified': verified,
     };
   }
 }

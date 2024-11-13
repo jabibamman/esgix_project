@@ -1,3 +1,4 @@
+import 'package:esgix_project/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/app_config.dart';
@@ -31,6 +32,10 @@ class EsgiXApp extends StatelessWidget {
           ),
         ),
         home: const LoginScreen(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+        },
       ),
     );
   }

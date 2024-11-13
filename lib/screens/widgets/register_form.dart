@@ -1,21 +1,23 @@
 import 'package:esgix_project/theme/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../blocs/auth_bloc/auth_bloc.dart';
 import '../../blocs/auth_bloc/auth_state.dart';
 import '../../core/utils/navigation_transitions.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
-import '../register_screen.dart';
 
-class LoginForm extends StatelessWidget {
-  final void Function(String email, String password) onLogin;
+class RegisterForm extends StatelessWidget {
+  final void Function(String email, String password, String username, String avatar) onRegister;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _avatarController = TextEditingController();
+  bool _passwordsMatch = true;
 
-  LoginForm({super.key, required this.onLogin});
+  RegisterForm({super.key, required this.onRegister});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: 16.0),
           Center(
             child: Text(
-              'Log in to Twitter',
+              'Sign up for Twitter',
               style: TextStyles.headline1,
             ),
           ),
@@ -43,27 +45,18 @@ class LoginForm extends StatelessWidget {
           TextFormField(
             controller: _emailController,
             decoration: InputDecoration(
-              labelText: 'Phone, email or username',
-              labelStyle: TextStyle(color: AppColors.primary),
+              labelText: 'Email',
               filled: true,
               fillColor: AppColors.lightGray,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide.none,
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Veuillez entrer un email';
-              }
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Veuillez entrer un email valide';
-              }
+              if (value == null || value.isEmpty) return 'Please enter an email';
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Please enter a valid email';
               return null;
             },
           ),
@@ -72,26 +65,72 @@ class LoginForm extends StatelessWidget {
             controller: _passwordController,
             decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: TextStyle(color: AppColors.primary),
               filled: true,
               fillColor: AppColors.lightGray,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide.none,
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             ),
             obscureText: true,
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Veuillez entrer votre mot de passe';
-              }
+              if (value == null || value.isEmpty) return 'Please enter your password';
+              if (value.length < 6) return 'Password must be at least 6 characters long';
               return null;
             },
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            controller: _confirmPasswordController,
+            decoration: InputDecoration(
+              labelText: 'Confirm Password',
+              filled: true,
+              fillColor: AppColors.lightGray,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              errorText: !_passwordsMatch ? 'Passwords do not match' : null,
+            ),
+            obscureText: true,
+            onChanged: (value) {
+              _passwordsMatch = value == _passwordController.text;
+              (context as Element).markNeedsBuild();
+            },
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            controller: _usernameController,
+            decoration: InputDecoration(
+              labelText: 'Username',
+              filled: true,
+              fillColor: AppColors.lightGray,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) return 'Please enter a username';
+              return null;
+            },
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            controller: _avatarController,
+            decoration: InputDecoration(
+              labelText: 'Avatar URL',
+              filled: true,
+              fillColor: AppColors.lightGray,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            ),
           ),
           const SizedBox(height: 24.0),
           BlocBuilder<AuthBloc, AuthState>(
@@ -112,15 +151,19 @@ class LoginForm extends StatelessWidget {
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoading) {
-                return Center(
-                    child: CircularProgressIndicator(color: AppColors.primary));
+                return Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
               return SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      onLogin(_emailController.text, _passwordController.text);
+                      onRegister(
+                        _emailController.text,
+                        _passwordController.text,
+                        _usernameController.text,
+                        _avatarController.text,
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -131,9 +174,8 @@ class LoginForm extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Log in',
-                    style:
-                        TextStyles.bodyText1.copyWith(color: AppColors.white),
+                    'Sign up',
+                    style: TextStyles.bodyText1.copyWith(color: AppColors.white),
                   ),
                 ),
               );
@@ -144,27 +186,12 @@ class LoginForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'Forgot password?',
-                  style:
-                      TextStyles.bodyText2.copyWith(color: AppColors.primary),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              Text(
-                '•',
-                style: TextStyles.bodyText2,
-              ),
-              const SizedBox(width: 8.0),
-              GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushNamed('/register');
+                  Navigator.of(context).pushNamed('/login');
                 },
                 child: Text(
-                  'Sign up for Twitter',
-                  style:
-                      TextStyles.bodyText2.copyWith(color: AppColors.primary),
+                  'Already have an account? Log in',
+                  style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
                 ),
               ),
             ],
