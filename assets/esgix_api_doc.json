@@ -1,0 +1,399 @@
+{
+  "collection": {
+    "info": {
+      "_postman_id": "ffedacd3-7733-4529-ba35-5c6308fd31ec",
+      "name": "ESGIX - shared",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "updatedAt": "2024-10-14T14:48:58.000Z",
+      "createdAt": "2024-10-02T17:59:59.000Z",
+      "lastUpdatedBy": "30856059",
+      "uid": "30856059-ffedacd3-7733-4529-ba35-5c6308fd31ec"
+    },
+    "item": [
+      {
+        "name": "Posts",
+        "item": [
+          {
+            "name": "Create post",
+            "id": "0133ca27-d3f1-4eb3-9dd7-91dfb40b8b6a",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3MjkwOTk1OTQsImlkIjoiaDdwdHZrdTk2MWF5YmZuIiwidHlwZSI6ImF1dGhSZWNvcmQifQ.JgbwQs9UO17TUORsknX7GtHUHB4Gz6WeRvBpak0TJEE",
+                  "type": "text"
+                },
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"content\": \"Voici un exemple de message\"\n}",
+                "options": { "raw": { "language": "json" } }
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/posts",
+                "host": ["{{BASE_URL}}"],
+                "path": ["posts"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-0133ca27-d3f1-4eb3-9dd7-91dfb40b8b6a"
+          },
+          {
+            "name": "Delete post",
+            "id": "da3c9119-a45a-41b3-bd55-5636f55e7942",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3Mjg4NDQ5MjQsImlkIjoiNjY1eWIweDR0eG1rbGJ3IiwidHlwZSI6ImF1dGhSZWNvcmQifQ.m8rR5bhdeYcHNL6HEUDQ0QDnBt0TBNfDueCazuQ-SZI",
+                  "type": "text"
+                },
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/posts/qjtszq6i08usoze",
+                "host": ["{{BASE_URL}}"],
+                "path": ["posts", "qjtszq6i08usoze"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-da3c9119-a45a-41b3-bd55-5636f55e7942"
+          },
+          {
+            "name": "Get posts with likes and comments count",
+            "id": "a1db4010-42aa-4d1a-9aeb-73a18432753c",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/posts?page=0&offset=10",
+                "host": ["{{BASE_URL}}"],
+                "path": ["posts"],
+                "query": [
+                  { "key": "page", "value": "0" },
+                  { "key": "offset", "value": "10" },
+                  {
+                    "key": "parent",
+                    "value": "km8rl4t9wsy07a1",
+                    "disabled": true
+                  }
+                ]
+              }
+            },
+            "response": [],
+            "uid": "30856059-a1db4010-42aa-4d1a-9aeb-73a18432753c"
+          },
+          {
+            "name": "Get post by ID",
+            "id": "f5523bae-3570-46da-bb45-8fc1ad15470a",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/posts/km8rl4t9wsy07a1",
+                "host": ["{{BASE_URL}}"],
+                "path": ["posts", "km8rl4t9wsy07a1"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-f5523bae-3570-46da-bb45-8fc1ad15470a"
+          },
+          {
+            "name": "Update post",
+            "id": "2dc6608f-1417-4208-9b7c-ae775d226c54",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3Mjg4NTY1ODksImlkIjoiZDJhZDdzdWcyaHRqeTA0IiwidHlwZSI6ImF1dGhSZWNvcmQifQ.xMm71rl6xlBFDy3aoL56gNH3-YUOcy5PV26tuUy53sA",
+                  "type": "text"
+                },
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"content\": \"Voici une modification du post, à la fois pour le contenu mais aussi pour l'image\",\n    \"imageUrl\": \"https://picsum.photos/200/300\"\n}",
+                "options": { "raw": { "language": "json" } }
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/posts/y4r6nw3m8nknjm1",
+                "host": ["{{BASE_URL}}"],
+                "path": ["posts", "y4r6nw3m8nknjm1"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-2dc6608f-1417-4208-9b7c-ae775d226c54"
+          },
+          {
+            "name": "Search",
+            "id": "db83bd05-fcbe-46e7-870d-51660c06f78b",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/search?query=toto",
+                "host": ["{{BASE_URL}}"],
+                "path": ["search"],
+                "query": [{ "key": "query", "value": "toto" }]
+              }
+            },
+            "response": [],
+            "uid": "30856059-db83bd05-fcbe-46e7-870d-51660c06f78b"
+          },
+          {
+            "name": "Like a post",
+            "id": "7b8be568-8cc5-4608-a383-60608dc2fecc",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3MjgwNTcxODgsImlkIjoiNjY1eWIweDR0eG1rbGJ3IiwidHlwZSI6ImF1dGhSZWNvcmQifQ.v_xAJa2EfqS3JmwZHjKyRqkduox9Xs7a19u65kE5vRo",
+                  "type": "text"
+                },
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/likes/u93d4lfmjch7vl3",
+                "host": ["{{BASE_URL}}"],
+                "path": ["likes", "u93d4lfmjch7vl3"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-7b8be568-8cc5-4608-a383-60608dc2fecc"
+          }
+        ],
+        "id": "fca06e10-4089-4a14-87fa-c4b49671777c",
+        "uid": "30856059-fca06e10-4089-4a14-87fa-c4b49671777c"
+      },
+      {
+        "name": "Users",
+        "item": [
+          {
+            "name": "Get posts by user",
+            "id": "e52bcdd3-3414-482c-baf5-c23d9271efba",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/user/665yb0x4txmklbw/posts?page=0&offset=10",
+                "host": ["{{BASE_URL}}"],
+                "path": ["user", "665yb0x4txmklbw", "posts"],
+                "query": [
+                  { "key": "page", "value": "0" },
+                  { "key": "offset", "value": "10" }
+                ]
+              }
+            },
+            "response": [],
+            "uid": "30856059-e52bcdd3-3414-482c-baf5-c23d9271efba"
+          },
+          {
+            "name": "Get liked posts by user",
+            "id": "8ab6c57d-d531-41cc-823d-eeff34a77cdb",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/user/alzo74lliaw9qku/likes?page=0&offset=10",
+                "host": ["{{BASE_URL}}"],
+                "path": ["user", "alzo74lliaw9qku", "likes"],
+                "query": [
+                  { "key": "page", "value": "0" },
+                  { "key": "offset", "value": "10" }
+                ]
+              }
+            },
+            "response": [],
+            "uid": "30856059-8ab6c57d-d531-41cc-823d-eeff34a77cdb"
+          },
+          {
+            "name": "Get users who liked post",
+            "id": "14d655ff-7dd1-4e66-a492-2b4bf69e5541",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/likes/negsdkvld5eu3fo/users",
+                "host": ["{{BASE_URL}}"],
+                "path": ["likes", "negsdkvld5eu3fo", "users"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-14d655ff-7dd1-4e66-a492-2b4bf69e5541"
+          },
+          {
+            "name": "Get user by id",
+            "id": "cc3f0828-8477-4f7e-8343-29acc6a2cd2a",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/users/u8beuvijimweqxa",
+                "host": ["{{BASE_URL}}"],
+                "path": ["users", "u8beuvijimweqxa"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-cc3f0828-8477-4f7e-8343-29acc6a2cd2a"
+          },
+          {
+            "name": "Update user",
+            "id": "ca0ea631-49df-4067-baa6-2acfeb401251",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3Mjg4NDMzMTAsImlkIjoiNjY1eWIweDR0eG1rbGJ3IiwidHlwZSI6ImF1dGhSZWNvcmQifQ.yTSW0zfFzhqRs1vXHXQPqOsd-s5VINEm8efkpKAUNxo",
+                  "type": "text"
+                },
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n     \"username\": \"Sanchyu2\",\n    \"description\": \"Voici une nouvelle description pour sanchyu\",\n    \"avatar\": \"monAvatar\"\n}",
+                "options": { "raw": { "language": "json" } }
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/users/665yb0x4txmklbw",
+                "host": ["{{BASE_URL}}"],
+                "path": ["users", "665yb0x4txmklbw"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-ca0ea631-49df-4067-baa6-2acfeb401251"
+          }
+        ],
+        "id": "60f9a064-af30-45cc-8363-010ada39cf7a",
+        "uid": "30856059-60f9a064-af30-45cc-8363-010ada39cf7a"
+      },
+      {
+        "name": "Auth",
+        "item": [
+          {
+            "name": "Login",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "e454a26b-7950-479f-9a35-c644a9ba65f8",
+                  "exec": [
+                    "const json = pm.response.json();",
+                    "const token = json[\"token\"];",
+                    "pm.environment.set(\"token\", token);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "id": "2d153987-4588-450c-a800-b69fd39d3221",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"thomas@gmail.com\",\n    \"password\": \"azertyuiop\"\n}",
+                "options": { "raw": { "language": "json" } }
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/auth/login",
+                "host": ["{{BASE_URL}}"],
+                "path": ["auth", "login"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-2d153987-4588-450c-a800-b69fd39d3221"
+          },
+          {
+            "name": "Register",
+            "id": "9f13d0d3-cd74-4555-b63d-07d4291a5498",
+            "protocolProfileBehavior": { "disableBodyPruning": true },
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "x-api-key", "value": "{{API_KEY}}", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"thomas@gmail.com\",\n    \"password\": \"Totoro23\",\n    \"username\": \"Sanchyu\",\n    \"avatar\": \"https://picsum.photos/200/300\"\n}",
+                "options": { "raw": { "language": "json" } }
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/auth/register",
+                "host": ["{{BASE_URL}}"],
+                "path": ["auth", "register"]
+              }
+            },
+            "response": [],
+            "uid": "30856059-9f13d0d3-cd74-4555-b63d-07d4291a5498"
+          }
+        ],
+        "id": "632ed75a-bab2-4bf4-9a53-da79402defc7",
+        "uid": "30856059-632ed75a-bab2-4bf4-9a53-da79402defc7"
+      }
+    ],
+    "auth": {
+      "type": "bearer",
+      "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+    },
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "id": "3718912c-5a24-4517-b958-23af71787db6",
+          "type": "text/javascript",
+          "packages": {},
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "id": "fbf5c5bd-dc17-493e-ae47-5b4345d4f1f9",
+          "type": "text/javascript",
+          "packages": {},
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      { "key": "BASE_URL", "value": "https://esgix.tech", "type": "string" },
+      { "key": "API_KEY", "value": "107b162389ec", "type": "string" }
+    ]
+  }
+}
