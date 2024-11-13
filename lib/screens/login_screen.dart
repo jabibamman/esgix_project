@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/auth_bloc/auth_bloc.dart';
 import '../blocs/auth_bloc/auth_event.dart';
 import '../blocs/auth_bloc/auth_state.dart';
-import '../theme/text_styles.dart';
 import 'widgets/login_form.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -16,9 +15,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Connexion', style: TextStyles.appBarTitle),
-      ),
+      appBar: null,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -30,21 +27,11 @@ class LoginScreen extends StatelessWidget {
           }
         },
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: LoginForm(
-                      onLogin: (email, password) =>
-                          _handleLogin(context, email, password),
-                    ),
-                  ),
-                ),
-              ],
+            child: LoginForm(
+              onLogin: (email, password) =>
+                  _handleLogin(context, email, password),
             ),
           ),
         ),

@@ -1,11 +1,9 @@
-import 'package:esgix_project/screens/widgets/register_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/auth_bloc/auth_bloc.dart';
 import '../../blocs/auth_bloc/auth_event.dart';
 import '../../blocs/auth_bloc/auth_state.dart';
-import '../../theme/text_styles.dart';
-
+import 'widgets/register_form.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -17,9 +15,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register', style: TextStyles.appBarTitle),
-      ),
+      appBar: null,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -31,21 +27,11 @@ class RegisterScreen extends StatelessWidget {
           }
         },
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: RegisterForm(
-                      onRegister: (email, password, username, avatar) =>
-                          _handleRegister(context, email, password, username, avatar),
-                    ),
-                  ),
-                ),
-              ],
+            child: RegisterForm(
+              onRegister: (email, password, username, avatar) =>
+                  _handleRegister(context, email, password, username, avatar),
             ),
           ),
         ),

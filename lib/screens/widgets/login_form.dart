@@ -23,7 +23,7 @@ class LoginForm extends StatelessWidget {
       key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
             child: Image.asset(
