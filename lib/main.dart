@@ -2,6 +2,7 @@ import 'package:esgix_project/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/app_config.dart';
+import 'core/routes.dart';
 import 'core/services/auth_service.dart';
 import 'blocs/auth_bloc/auth_bloc.dart';
 import 'screens/login_screen.dart';
@@ -22,19 +23,28 @@ class EsgiXApp extends StatelessWidget {
           create: (context) => AuthBloc(AuthService()),
         ),
       ],
-      child: MaterialApp(
-        theme: ThemeData(
-          textTheme: const TextTheme(
-            displayMedium: TextStyle(
-              fontSize: 24,
-              color: Colors.orange,
+      child: FutureBuilder<Widget>(
+        future: AppRoutes.getInitialRoute(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MaterialApp(
+              home: Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+          return MaterialApp(
+            theme: ThemeData(
+              textTheme: const TextTheme(
+                displayMedium: TextStyle(
+                  fontSize: 24,
+                  color: Colors.orange,
+                ),
+              ),
             ),
-          ),
-        ),
-        home: const LoginScreen(),
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterScreen(),
+            home: snapshot.data ?? const LoginScreen(),
+            routes: AppRoutes.getRoutes(),
+          );
         },
       ),
     );
