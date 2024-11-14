@@ -6,7 +6,6 @@ import '../../shared/blocs/auth_bloc/auth_bloc.dart';
 import '../../shared/blocs/auth_bloc/auth_state.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
-import '../register/register_screen.dart';
 
 class LoginForm extends StatelessWidget {
   final void Function(String email, String password) onLogin;

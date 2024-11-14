@@ -1,202 +1,234 @@
-import 'package:esgix_project/theme/images.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../shared/blocs/auth_bloc/auth_bloc.dart';
-import '../../shared/blocs/auth_bloc/auth_state.dart';
+
+import '../../shared/blocs/register_bloc/register_bloc.dart';
+import '../../shared/blocs/register_bloc/register_event.dart';
+import '../../shared/blocs/register_bloc/register_state.dart';
 import '../../theme/colors.dart';
+import '../../theme/images.dart';
 import '../../theme/text_styles.dart';
 
 class RegisterForm extends StatelessWidget {
-  final void Function(String email, String password, String username, String avatar) onRegister;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _usernameController = TextEditingController();
   final _avatarController = TextEditingController();
-  bool _passwordsMatch = true;
-
-  RegisterForm({super.key, required this.onRegister});
+  final _descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Image.asset(
-              AppImages.logo,
-              width: 70,
-              height: 70,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Center(
-            child: Text(
-              'Sign up for Twitter',
-              style: TextStyles.headline1,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: 'Email',
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
+    return BlocBuilder<RegisterBloc, RegisterState>(
+      builder: (context, state) {
+        return Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 32.0),
+                  if (state is RegisterStep1) ..._buildStep1(context),
+                  if (state is RegisterStep2) ..._buildStep2(context),
+                ],
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Please enter an email';
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Please enter a valid email';
-              return null;
-            },
           ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            controller: _passwordController,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-            ),
-            obscureText: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Please enter your password';
-              if (value.length < 6) return 'Password must be at least 6 characters long';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildStep1(BuildContext context) {
+    return [
+      TextFormField(
+        controller: _emailController,
+        decoration: _buildInputDecoration('Email'),
+        validator: (value) => _validateEmail(value),
+      ),
+      const SizedBox(height: 16.0),
+      TextFormField(
+        controller: _usernameController,
+        decoration: _buildInputDecoration('Username'),
+        validator: (value) => value!.isEmpty ? 'Please enter a username' : null,
+      ),
+      const SizedBox(height: 16.0),
+      TextFormField(
+        controller: _passwordController,
+        decoration: _buildInputDecoration('Password'),
+        obscureText: true,
+        validator: (value) => _validatePassword(value),
+        onChanged: (value) {
+          context.read<RegisterBloc>().add(
+            PasswordChanged(value, _confirmPasswordController.text),
+          );
+        },
+      ),
+      const SizedBox(height: 16.0),
+      BlocBuilder<RegisterBloc, RegisterState>(
+        builder: (context, state) {
+          bool passwordsMatch = true;
+          if (state is RegisterStep1) {
+            passwordsMatch = state.passwordsMatch;
+          }
+
+          return TextFormField(
             controller: _confirmPasswordController,
-            decoration: InputDecoration(
-              labelText: 'Confirm Password',
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-              errorText: !_passwordsMatch ? 'Passwords do not match' : null,
+            decoration: _buildInputDecoration('Confirm Password').copyWith(
+              errorText: passwordsMatch ? null : 'Passwords do not match',
             ),
             obscureText: true,
             onChanged: (value) {
-              _passwordsMatch = value == _passwordController.text;
-              (context as Element).markNeedsBuild();
-            },
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            controller: _usernameController,
-            decoration: InputDecoration(
-              labelText: 'Username',
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Please enter a username';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            controller: _avatarController,
-            decoration: InputDecoration(
-              labelText: 'Avatar URL',
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-            ),
-          ),
-          const SizedBox(height: 24.0),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is AuthError) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    state.message,
-                    style: TextStyle(color: Colors.red, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is AuthLoading) {
-                return Center(child: CircularProgressIndicator(color: AppColors.primary));
-              }
-              return SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      onRegister(
-                        _emailController.text,
-                        _passwordController.text,
-                        _usernameController.text,
-                        _avatarController.text,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24.0),
-                    ),
-                  ),
-                  child: Text(
-                    'Sign up',
-                    style: TextStyles.bodyText1.copyWith(color: AppColors.white),
-                  ),
-                ),
+              context.read<RegisterBloc>().add(
+                PasswordChanged(_passwordController.text, value),
               );
             },
+          );
+        },
+      ),
+      const SizedBox(height: 24.0),
+      ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState?.validate() ?? false) {
+            context.read<RegisterBloc>().add(RegisterNextStep());
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(vertical: 14.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.0),
           ),
-          const SizedBox(height: 30.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/login');
-                },
-                child: Text(
-                  'Already have an account? Log in',
-                  style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
-                ),
-              ),
-            ],
+        ),
+        child: Text(
+          'Next',
+          style: TextStyles.bodyText1.copyWith(color: AppColors.white),
+        ),
+      ),
+      const SizedBox(height: 30.0),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed('/login');
+            },
+            child: Text(
+              'Already have an account? Log in',
+              style:
+              TextStyles.bodyText2.copyWith(color: AppColors.primary),
+            ),
           ),
         ],
       ),
+    ];
+  }
+
+  List<Widget> _buildStep2(BuildContext context) {
+    return [
+      TextFormField(
+        controller: _descriptionController,
+        decoration: _buildInputDecoration('Description'),
+      ),
+      const SizedBox(height: 16.0),
+      TextFormField(
+        controller: _avatarController,
+        decoration: _buildInputDecoration('Avatar URL'),
+      ),
+      const SizedBox(height: 24.0),
+      ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState?.validate() ?? false) {
+            context.read<RegisterBloc>().add(
+              SubmitRegistration(
+                email: _emailController.text,
+                password: _passwordController.text,
+                username: _usernameController.text,
+                avatar: _avatarController.text,
+                description: _descriptionController.text,
+              ),
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(vertical: 14.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.0),
+          ),
+        ),
+        child: Text(
+          'Sign Up',
+          style: TextStyles.bodyText1.copyWith(color: AppColors.white),
+        ),
+      ),
+      const SizedBox(height: 30.0),
+      GestureDetector(
+        onTap: () {
+          Navigator.of(context).pushNamed('/login');
+        },
+        child: Center(
+          child: Text(
+            'Already have an account? Log in',
+            style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  InputDecoration _buildInputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: TextStyle(color: AppColors.primary),
+      filled: true,
+      fillColor: AppColors.lightGray,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: AppColors.primary, width: 2.0),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+    );
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter an email';
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Please enter a valid email';
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter a password';
+    if (value.length < 6) return 'Password must be at least 6 characters long';
+    return null;
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Center(
+          child: Image.asset(
+            AppImages.logo,
+            width: 70,
+            height: 70,
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        Center(
+          child: Text(
+            'Sign up for Twitter',
+            style: TextStyles.headline1,
+          ),
+        ),
+      ],
     );
   }
 }

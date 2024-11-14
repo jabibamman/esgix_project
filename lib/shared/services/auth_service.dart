@@ -48,8 +48,9 @@ class AuthService {
 
   Future<void> register(UserModel user) async {
     try {
+      print('user json: ${user.toJson()}');
       final response = await dio.post('/auth/register', data: user.toJson());
-
+      print("le post est fait");
       if (response.statusCode != 200) {
         throw RegistrationException("Échec de l'inscription.");
       }

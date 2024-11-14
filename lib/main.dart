@@ -1,4 +1,5 @@
 import 'package:esgix_project/shared/blocs/auth_bloc/auth_bloc.dart';
+import 'package:esgix_project/shared/blocs/register_bloc/register_bloc.dart';
 import 'package:esgix_project/shared/core/app_config.dart';
 import 'package:esgix_project/shared/core/routes.dart';
 import 'package:esgix_project/shared/services/auth_service.dart';
@@ -9,18 +10,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   await AppConfig.loadEnv();
-  runApp(const EsgiXApp());
+  final authService = AuthService();
+  runApp(EsgiXApp(authService: authService));
 }
 
 class EsgiXApp extends StatelessWidget {
-  const EsgiXApp({super.key});
+  final AuthService authService;
+
+  const EsgiXApp({super.key, required this.authService});
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AuthBloc(AuthService()),
+          create: (context) => AuthBloc(authService),
+        ),
+        BlocProvider(
+            create: (context) => RegisterBloc(authService)
         ),
       ],
       child: FutureBuilder<Widget>(

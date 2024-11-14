@@ -11,7 +11,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc(this.authService) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
-    on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthenticationStatus>(_onCheckAuthenticationStatus);
   }
@@ -24,23 +23,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthAuthenticated(user));
     } catch (e) {
       emit(AuthError(e is LoginException ? e.message : e.toString()));
-    }
-  }
-
-  Future<void> _onRegisterRequested(RegisterRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    try {
-      final user = UserModel(
-        email: event.email,
-        username: event.username,
-        password: event.password,
-        avatar: event.avatar,
-      );
-      await authService.register(user);
-      final authenticatedUser = await authService.login(event.email, event.password);
-      emit(AuthAuthenticated(authenticatedUser));
-    } catch (e) {
-      emit(AuthError(e is RegistrationException ? e.message : e.toString()));
     }
   }
 

@@ -2,38 +2,30 @@ import 'package:esgix_project/unauthenticated/register/register_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../shared/blocs/auth_bloc/auth_bloc.dart';
-import '../../shared/blocs/auth_bloc/auth_event.dart';
-import '../../shared/blocs/auth_bloc/auth_state.dart';
+import '../../shared/blocs/register_bloc/register_bloc.dart';
+import '../../shared/blocs/register_bloc/register_state.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
-
-  void _handleRegister(BuildContext context, String email, String password, String username, String avatar) {
-    context.read<AuthBloc>().add(RegisterRequested(email, password, username, avatar));
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocListener<RegisterBloc, RegisterState>(
         listener: (context, state) {
-          if (state is AuthAuthenticated) {
+          if (state is RegisterSuccess) {
             Navigator.pushReplacementNamed(context, '/home');
-          } else if (state is AuthError) {
+          } else if (state is RegisterFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              SnackBar(content: Text('Registration failed: ${state.error}')),
             );
           }
         },
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: RegisterForm(
-              onRegister: (email, password, username, avatar) =>
-                  _handleRegister(context, email, password, username, avatar),
-            ),
+            child: RegisterForm(),
           ),
         ),
       ),
