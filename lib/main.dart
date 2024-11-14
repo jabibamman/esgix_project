@@ -1,11 +1,11 @@
-import 'package:esgix_project/screens/register_screen.dart';
+import 'package:esgix_project/shared/blocs/auth_bloc/auth_bloc.dart';
+import 'package:esgix_project/shared/core/app_config.dart';
+import 'package:esgix_project/shared/core/routes.dart';
+import 'package:esgix_project/shared/services/auth_service.dart';
+import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'core/app_config.dart';
-import 'core/routes.dart';
-import 'core/services/auth_service.dart';
-import 'blocs/auth_bloc/auth_bloc.dart';
-import 'screens/login_screen.dart';
+
 
 void main() async {
   await AppConfig.loadEnv();

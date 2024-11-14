@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../core/models/user_model.dart';
+import '../../models/user_model.dart';
 
 sealed class AuthState extends Equatable {
   const AuthState();

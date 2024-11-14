@@ -1,9 +1,8 @@
 import 'package:esgix_project/theme/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../blocs/auth_bloc/auth_bloc.dart';
-import '../../blocs/auth_bloc/auth_state.dart';
-import '../../core/utils/navigation_transitions.dart';
+import '../../shared/blocs/auth_bloc/auth_bloc.dart';
+import '../../shared/blocs/auth_bloc/auth_state.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../blocs/auth_bloc/auth_bloc.dart';
-import '../../blocs/auth_bloc/auth_event.dart';
-import '../../blocs/auth_bloc/auth_state.dart';
-import 'widgets/register_form.dart';
+import '../../shared/blocs/auth_bloc/auth_bloc.dart';
+import '../../shared/blocs/auth_bloc/auth_event.dart';
+import '../../shared/blocs/auth_bloc/auth_state.dart';
+import 'login_form.dart';
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
-  void _handleRegister(BuildContext context, String email, String password, String username, String avatar) {
-    context.read<AuthBloc>().add(RegisterRequested(email, password, username, avatar));
+  void _handleLogin(BuildContext context, String email, String password) {
+    context.read<AuthBloc>().add(LoginRequested(email, password));
   }
 
   @override
@@ -29,9 +29,9 @@ class RegisterScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: RegisterForm(
-              onRegister: (email, password, username, avatar) =>
-                  _handleRegister(context, email, password, username, avatar),
+            child: LoginForm(
+              onLogin: (email, password) =>
+                  _handleLogin(context, email, password),
             ),
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../app_config.dart';
+import '../core/app_config.dart';
 import '../models/user_model.dart';
 import '../exceptions/auth_exceptions.dart';
 

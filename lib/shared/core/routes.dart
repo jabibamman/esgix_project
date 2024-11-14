@@ -1,7 +1,9 @@
-import 'package:esgix_project/core/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import '../screens/login_screen.dart';
-import '../screens/register_screen.dart';
+
+import '../../unauthenticated/login/login_screen.dart';
+import '../../unauthenticated/register/register_screen.dart';
+import '../services/auth_service.dart';
+
 
 class AppRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
