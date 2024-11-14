@@ -10,6 +10,7 @@ class UserModel {
   final String? id;
   final String? updated;
   final String username;
+  final String? password;
   final bool? verified;
 
   UserModel({
@@ -24,6 +25,7 @@ class UserModel {
     this.id,
     this.updated,
     required this.username,
+    this.password,
     this.verified,
   });
 
@@ -48,6 +50,7 @@ class UserModel {
     return {
       'email': email,
       'username': username,
+      if (password != null) 'password': password,
       if (avatar != null) 'avatar': avatar,
       if (apiKey != null) 'api_key': apiKey,
       if (collectionId != null) 'collectionId': collectionId,

@@ -33,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = UserModel(
         email: event.email,
         username: event.username,
+        password: event.password,
         avatar: event.avatar,
       );
       await authService.register(user);
