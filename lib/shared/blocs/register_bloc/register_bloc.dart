@@ -10,27 +10,39 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   RegisterBloc(this.authService) : super(RegisterStep1()) {
     on<RegisterNextStep>((event, emit) {
       if (state is RegisterStep1) {
-        emit(RegisterStep2());
+        final step1State = state as RegisterStep1;
+        emit(RegisterStep2(
+          email: step1State.email,
+          username: step1State.username,
+          password: step1State.password,
+        ));
       }
     });
 
-    on<AvatarUrlChanged>((event, emit) {
-      final isValidUrl = Uri.tryParse(event.avatarUrl)?.hasAbsolutePath ?? false;
-      if (isValidUrl) {
-        emit(RegisterFormState(avatarPreviewUrl: event.avatarUrl));
-      } else {
-        emit(RegisterFormState(avatarError: 'Invalid image URL'));
+    on<RegisterPreviousStep>((event, emit) {
+      if (state is RegisterStep2) {
+        final step2State = state as RegisterStep2;
+        emit(RegisterStep1(
+          email: step2State.email,
+          username: step2State.username,
+          password: step2State.password,
+          confirmPassword: step2State.password,
+        ));
       }
     });
 
     on<PasswordChanged>((event, emit) {
-      final doPasswordsMatch = event.password == event.confirmPassword;
-
-      if (state is RegisterStep1 && (state as RegisterStep1).passwordsMatch != doPasswordsMatch) {
-        emit(RegisterStep1(passwordsMatch: doPasswordsMatch));
+      if (state is RegisterStep1) {
+        final step1State = state as RegisterStep1;
+        emit(RegisterStep1(
+          email: step1State.email,
+          username: step1State.username,
+          password: event.password,
+          confirmPassword: event.confirmPassword,
+          passwordsMatch: event.password == event.confirmPassword,
+        ));
       }
     });
-
 
     on<SubmitRegistration>((event, emit) async {
       emit(RegisterLoading());

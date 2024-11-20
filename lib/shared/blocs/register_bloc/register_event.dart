@@ -39,3 +39,5 @@ class PasswordChanged extends RegisterEvent {
 
   PasswordChanged(this.password, this.confirmPassword);
 }
+
+class RegisterPreviousStep extends RegisterEvent {}

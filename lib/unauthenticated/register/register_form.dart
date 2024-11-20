@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,7 +30,7 @@ class RegisterForm extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(state, context),
                   const SizedBox(height: 32.0),
                   if (state is RegisterStep1) ..._buildStep1(context),
                   if (state is RegisterStep2) ..._buildStep2(context),
@@ -211,9 +210,29 @@ class RegisterForm extends StatelessWidget {
     return null;
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(RegisterState state, BuildContext context) {
+    String headerText;
+
+    if (state is RegisterStep1) {
+      headerText = 'Sign up for Twitter';
+    } else if (state is RegisterStep2) {
+      headerText = 'It\'s almost done';
+    } else {
+      headerText = '';
+    }
+
     return Column(
       children: [
+        if (state is RegisterStep2)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: AppColors.primary),
+              onPressed: () {
+                context.read<RegisterBloc>().add(RegisterPreviousStep());
+              },
+            ),
+          ),
         Center(
           child: Image.asset(
             AppImages.logo,
@@ -224,7 +243,7 @@ class RegisterForm extends StatelessWidget {
         const SizedBox(height: 16.0),
         Center(
           child: Text(
-            'Sign up for Twitter',
+            headerText,
             style: TextStyles.headline1,
           ),
         ),
