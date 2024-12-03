@@ -30,14 +30,19 @@ class SubmitRegistration extends RegisterEvent {
 
 class AvatarUrlChanged extends RegisterEvent {
   final String avatarUrl;
-  AvatarUrlChanged(this.avatarUrl);
+  const AvatarUrlChanged(this.avatarUrl);
 }
 
 class PasswordChanged extends RegisterEvent {
   final String password;
   final String confirmPassword;
 
-  PasswordChanged(this.password, this.confirmPassword);
+  const PasswordChanged(this.password, this.confirmPassword);
 }
 
 class RegisterPreviousStep extends RegisterEvent {}
+
+class EmailChanged extends RegisterEvent  {
+  final String email;
+  const EmailChanged(this.email, String text);
+}

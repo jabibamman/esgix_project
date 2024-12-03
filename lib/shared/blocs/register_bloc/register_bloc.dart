@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
+import '../../utils/validators.dart';
 import 'register_event.dart';
 import 'register_state.dart';
 
@@ -60,5 +61,19 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         emit(RegisterFailure(e.toString()));
       }
     });
+
+    on<EmailChanged>((event, emit) {
+      if (state is RegisterStep1) {
+        final step1State = state as RegisterStep1;
+        emit(RegisterStep1(
+          email: event.email,
+          emailValid: validateEmail(event.email),
+          username: step1State.username,
+          password: step1State.password,
+          confirmPassword: step1State.confirmPassword,
+        ));
+      }
+    }
+    );
   }
 }

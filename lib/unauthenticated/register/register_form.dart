@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../shared/blocs/register_bloc/register_bloc.dart';
 import '../../shared/blocs/register_bloc/register_event.dart';
 import '../../shared/blocs/register_bloc/register_state.dart';
+import '../../shared/utils/constants.dart';
+import '../../shared/utils/validators.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 import '../../theme/text_styles.dart';
@@ -45,23 +47,42 @@ class RegisterForm extends StatelessWidget {
 
   List<Widget> _buildStep1(BuildContext context) {
     return [
-      TextFormField(
-        controller: _emailController,
-        decoration: _buildInputDecoration('Email'),
-        validator: (value) => _validateEmail(value),
+      BlocBuilder(
+        bloc: context.read<RegisterBloc>(),
+        builder: (context, state) {
+          bool emailValid = true;
+          if (state is RegisterStep1) {
+            emailValid = state.emailValid ?? true;
+          }
+
+          return TextFormField(
+            controller: _emailController,
+            decoration: _buildInputDecoration('Email').copyWith(
+              errorText: _emailController.text.isEmpty
+                  ? null
+                  : (emailValid ? null : kInvalidEmailError),
+            ),
+            validator: (value) => _validateEmail(value),
+            onChanged: (value) {
+              context.read<RegisterBloc>().add(
+                EmailChanged(value, _emailController.text),
+              );
+            },
+          );
+        },
       ),
       const SizedBox(height: 16.0),
       TextFormField(
         controller: _usernameController,
         decoration: _buildInputDecoration('Username'),
-        validator: (value) => value!.isEmpty ? 'Please enter a username' : null,
+        validator: (value) => value!.isEmpty ? kEmptyUsernameError : null,
       ),
       const SizedBox(height: 16.0),
       TextFormField(
         controller: _passwordController,
         decoration: _buildInputDecoration('Password'),
         obscureText: true,
-        validator: (value) => _validatePassword(value),
+        validator: (value) => validatePassword(value),
         onChanged: (value) {
           context.read<RegisterBloc>().add(
             PasswordChanged(value, _confirmPasswordController.text),
@@ -79,7 +100,7 @@ class RegisterForm extends StatelessWidget {
           return TextFormField(
             controller: _confirmPasswordController,
             decoration: _buildInputDecoration('Confirm Password').copyWith(
-              errorText: passwordsMatch ? null : 'Passwords do not match',
+              errorText: passwordsMatch ? null : kPasswordsDoNotMatchError,
             ),
             obscureText: true,
             onChanged: (value) {
@@ -105,7 +126,7 @@ class RegisterForm extends StatelessWidget {
           ),
         ),
         child: Text(
-          'Next',
+          kNext,
           style: TextStyles.bodyText1.copyWith(color: AppColors.white),
         ),
       ),
@@ -118,7 +139,7 @@ class RegisterForm extends StatelessWidget {
               Navigator.of(context).pushNamed('/login');
             },
             child: Text(
-              'Already have an account? Log in',
+              kAlreadyHaveAnAccount,
               style:
               TextStyles.bodyText2.copyWith(color: AppColors.primary),
             ),
@@ -173,7 +194,7 @@ class RegisterForm extends StatelessWidget {
         },
         child: Center(
           child: Text(
-            'Already have an account? Log in',
+            kAlreadyHaveAnAccount,
             style: TextStyles.bodyText2.copyWith(color: AppColors.primary),
           ),
         ),
@@ -199,14 +220,13 @@ class RegisterForm extends StatelessWidget {
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'Please enter an email';
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Please enter a valid email';
-    return null;
-  }
+    if (value == null || value.isEmpty) {
+      return kEmptyEmailError;
+    }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please enter a password';
-    if (value.length < 6) return 'Password must be at least 6 characters long';
+    if (!validateEmail(value)) {
+      return kInvalidEmailError;
+    }
     return null;
   }
 
@@ -214,9 +234,9 @@ class RegisterForm extends StatelessWidget {
     String headerText;
 
     if (state is RegisterStep1) {
-      headerText = 'Sign up for Twitter';
+      headerText = kSignUp;
     } else if (state is RegisterStep2) {
-      headerText = 'It\'s almost done';
+      headerText = kAlmostDone;
     } else {
       headerText = '';
     }
