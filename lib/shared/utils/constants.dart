@@ -7,6 +7,14 @@ const String kPasswordLengthError = 'Password must be at least 6 characters long
 const String kPasswordsDoNotMatchError = 'Passwords do not match';
 // Headers and titles
 const String kSignUp = 'Sign up for Twitter';
+const String kCreateAccount = 'Create your account';
 const String kAlmostDone = 'It\'s almost done';
 const String kAlreadyHaveAnAccount = 'Already have an account? Log in';
 const String kNext = 'Next';
+
+const String kArrowBackTooltip = 'Go back';
+const String kAlmostDoneText = "It's almost done";
+const String kDescriptionLabel = 'Description';
+const String kAvatarURLLabel = 'Avatar URL';
+const String kRegisteringMessage = 'Registering user...';
+const String kRegisterButtonText = 'Register';
