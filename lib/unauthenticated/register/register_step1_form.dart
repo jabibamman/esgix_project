@@ -23,8 +23,8 @@ class RegisterStep1Form extends StatelessWidget {
     required this.usernameController,
     required this.passwordController,
     required this.confirmPasswordController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:esgix_project/shared/utils/constants.dart';
 import 'package:esgix_project/theme/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,7 @@ class LoginForm extends StatelessWidget {
           const SizedBox(height: 16.0),
           Center(
             child: Text(
-              'Log in to Twitter',
+              kLogInTitle,
               style: TextStyles.headline1,
             ),
           ),
@@ -41,7 +42,7 @@ class LoginForm extends StatelessWidget {
           TextFormField(
             controller: _emailController,
             decoration: InputDecoration(
-              labelText: 'Phone, email or username',
+              labelText: kEmailLabel,
               labelStyle: TextStyle(color: AppColors.primary),
               filled: true,
               fillColor: AppColors.lightGray,
@@ -57,10 +58,10 @@ class LoginForm extends StatelessWidget {
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Veuillez entrer un email';
+                return kEmailEmptyError;
               }
               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Veuillez entrer un email valide';
+                return kInvalidEmailError;
               }
               return null;
             },
@@ -69,7 +70,7 @@ class LoginForm extends StatelessWidget {
           TextFormField(
             controller: _passwordController,
             decoration: InputDecoration(
-              labelText: 'Password',
+              labelText: kPasswordLabel,
               labelStyle: TextStyle(color: AppColors.primary),
               filled: true,
               fillColor: AppColors.lightGray,
@@ -86,7 +87,7 @@ class LoginForm extends StatelessWidget {
             obscureText: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Veuillez entrer votre mot de passe';
+                return kPasswordEmptyError;
               }
               return null;
             },
@@ -129,7 +130,7 @@ class LoginForm extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Log in',
+                    kLogInButton,
                     style:
                         TextStyles.bodyText1.copyWith(color: AppColors.white),
                   ),
@@ -144,7 +145,7 @@ class LoginForm extends StatelessWidget {
               GestureDetector(
                 onTap: () {},
                 child: Text(
-                  'Forgot password?',
+                  kForgotPassword,
                   style:
                       TextStyles.bodyText2.copyWith(color: AppColors.primary),
                 ),
@@ -160,7 +161,7 @@ class LoginForm extends StatelessWidget {
                   Navigator.of(context).pushNamed('/register');
                 },
                 child: Text(
-                  'Sign up for Twitter',
+                  kSignUp,
                   style:
                       TextStyles.bodyText2.copyWith(color: AppColors.primary),
                 ),
