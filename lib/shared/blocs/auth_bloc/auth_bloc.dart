@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/exceptions/auth_exceptions.dart';
-import '../../core/services/auth_service.dart';
+
+import '../../exceptions/auth_exceptions.dart';
+import '../../services/auth_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
