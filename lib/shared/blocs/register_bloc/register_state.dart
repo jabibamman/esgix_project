@@ -8,6 +8,7 @@ abstract class RegisterState extends Equatable {
   final String? avatar;
   final String? description;
   final bool? emailValid;
+  final String? passwordValid;
 
   const RegisterState({
     this.email,
@@ -17,6 +18,7 @@ abstract class RegisterState extends Equatable {
     this.avatar,
     this.description,
     this.emailValid,
+    this.passwordValid,
   });
 
   @override
@@ -35,12 +37,14 @@ class RegisterStep1 extends RegisterState {
     String? confirmPassword,
     this.passwordsMatch = true, 
     bool? emailValid,
+    String? passwordValid,
   }) : super(
     email: email,
     username: username,
     password: password,
     confirmPassword: confirmPassword,
     emailValid: emailValid,
+    passwordValid: passwordValid,
   );
 
   @override

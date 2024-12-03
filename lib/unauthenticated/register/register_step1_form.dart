@@ -76,36 +76,48 @@ class RegisterStep1Form extends StatelessWidget {
             validator: (value) => value!.isEmpty ? kEmptyUsernameError : null,
           ),
           const SizedBox(height: 16.0),
-          TextFormField(
-            controller: passwordController,
-            decoration: _buildInputDecoration('Password'),
-            obscureText: true,
-            validator: validatePassword,
-            onChanged: (value) {
-              context.read<RegisterBloc>().add(
-                PasswordChanged(value, confirmPasswordController.text),
-              );
-            },
-          ),
-          const SizedBox(height: 16.0),
           BlocBuilder<RegisterBloc, RegisterState>(
             builder: (context, state) {
-              bool passwordsMatch = true;
+              String? passwordError;
+              String? confirmPasswordError;
+
               if (state is RegisterStep1) {
-                passwordsMatch = state.passwordsMatch;
+                passwordError = state.passwordValid;
+                if (!state.passwordsMatch) {
+                  confirmPasswordError = kPasswordsDoNotMatchError;
+                }
               }
 
-              return TextFormField(
-                controller: confirmPasswordController,
-                decoration: _buildInputDecoration('Confirm Password').copyWith(
-                  errorText: passwordsMatch ? null : kPasswordsDoNotMatchError,
-                ),
-                obscureText: true,
-                onChanged: (value) {
-                  context.read<RegisterBloc>().add(
-                    PasswordChanged(passwordController.text, value),
-                  );
-                },
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: passwordController,
+                    decoration: _buildInputDecoration('Password').copyWith(
+                      errorText: passwordError,
+                    ),
+                    obscureText: true,
+                    validator: validatePassword,
+                    onChanged: (value) {
+                      context.read<RegisterBloc>().add(
+                        PasswordChanged(value, confirmPasswordController.text),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    decoration: _buildInputDecoration('Confirm Password').copyWith(
+                      errorText: confirmPasswordError,
+                    ),
+                    obscureText: true,
+                    onChanged: (value) {
+                      context.read<RegisterBloc>().add(
+                        PasswordChanged(passwordController.text, value),
+                      );
+                    },
+                  ),
+                ],
               );
             },
           ),

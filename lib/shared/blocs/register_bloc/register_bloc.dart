@@ -41,6 +41,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           password: event.password,
           confirmPassword: event.confirmPassword,
           passwordsMatch: event.password == event.confirmPassword,
+          passwordValid: validatePassword(event.password),
         ));
       }
     });
