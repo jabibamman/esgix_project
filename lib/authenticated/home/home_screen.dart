@@ -1,14 +1,36 @@
-import 'package:esgix_project/authenticated/home/tweet_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../shared/blocs/home_bloc/home_bloc.dart';
 import '../../shared/blocs/home_bloc/home_event.dart';
 import '../../shared/blocs/home_bloc/home_state.dart';
+import '../../authenticated/home/tweet_card.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Future<void> _refreshPosts() async {
+    context.read<HomeBloc>().add(RefreshPosts());
+    await Future.delayed(const Duration(milliseconds:250));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,42 +40,49 @@ class HomeScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                AppImages.logo,
-                height: 30,
-              ),
-            ],
+          title: GestureDetector(
+            onTap: _scrollToTop,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  AppImages.logo,
+                  height: 30,
+                ),
+              ],
+            ),
           ),
           centerTitle: true,
         ),
-        body: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            if (state is HomeLoading) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              );
-            } else if (state is HomeLoaded) {
-              return ListView.builder(
-                itemCount: state.posts.length,
-                itemBuilder: (context, index) {
-                  final post = state.posts[index];
-                  return TweetCard(post: post);
-                },
-              );
-            } else if (state is HomeError) {
-              return Center(
-                child: Text(
-                  'Error: ${state.message}',
-                  style: TextStyle(color: Colors.red, fontSize: 16),
-                ),
-              );
-            } else {
-              return const Center(child: Text('No posts available.'));
-            }
-          },
+        body: RefreshIndicator(
+          onRefresh: _refreshPosts,
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                );
+              } else if (state is HomeLoaded) {
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: state.posts.length,
+                  itemBuilder: (context, index) {
+                    final post = state.posts[index];
+                    return TweetCard(post: post);
+                  },
+                );
+              } else if (state is HomeError) {
+                return Center(
+                  child: Text(
+                    'Error: ${state.message}',
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                );
+              } else {
+                return const Center(child: Text('No posts available.'));
+              }
+            },
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => context.read<HomeBloc>().add(RefreshPosts()),
@@ -62,5 +91,11 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }
