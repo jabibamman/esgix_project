@@ -16,57 +16,101 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool isLoadingMore = false;
 
-  void _scrollToTop() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
+  @override
+  void initState() {
+    super.initState();
+    context.read<HomeBloc>().add(FetchPosts());
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100 && !isLoadingMore) {
+        setState(() {
+          isLoadingMore = true;
+        });
+        context.read<HomeBloc>().add(FetchPosts());
+      }
+    });
   }
 
   Future<void> _refreshPosts() async {
     context.read<HomeBloc>().add(RefreshPosts());
-    await Future.delayed(const Duration(milliseconds:250));
+    await Future.delayed(const Duration(milliseconds: 250));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HomeBloc(RepositoryProvider.of(context))..add(FetchPosts()),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: GestureDetector(
-            onTap: _scrollToTop,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  AppImages.logo,
-                  height: 30,
-                ),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: GestureDetector(
+          onTap: () {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              );
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                AppImages.logo,
+                height: 30,
+              ),
+            ],
           ),
-          centerTitle: true,
         ),
-        body: RefreshIndicator(
-          onRefresh: _refreshPosts,
+        centerTitle: true,
+      ),
+      body: RefreshIndicator(
+        onRefresh: _refreshPosts,
+        child: BlocListener<HomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state is HomeLoaded) {
+              setState(() {
+                isLoadingMore = false;
+              });
+            }
+          },
           child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
-              if (state is HomeLoading) {
+              if (state is HomeLoading && context.read<HomeBloc>().allPosts.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 );
               } else if (state is HomeLoaded) {
                 return ListView.builder(
                   controller: _scrollController,
-                  itemCount: state.posts.length,
+                  itemCount: state.posts.length + (isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (index == state.posts.length) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              context.read<HomeBloc>().add(FetchPosts());
+                            },
+                            icon: const Text('😔'),
+                            label: const Text(
+                              'Vous avez atteint la fin.\n Appuyez pour recharger la page.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     final post = state.posts[index];
                     return TweetCard(post: post);
                   },
@@ -79,15 +123,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               } else {
-                return const Center(child: Text('No posts available.'));
+                  return const Center(
+                  child: CircularProgressIndicator(
+                  color: AppColors.primary
+                  ),
+                );
               }
-            },
+            }
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.read<HomeBloc>().add(RefreshPosts()),
-          backgroundColor: AppColors.primary,
-          child: const Icon(Icons.refresh, color: Colors.white),
         ),
       ),
     );
