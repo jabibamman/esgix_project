@@ -2,8 +2,8 @@ class PostModel {
   final String id;
   final String content;
   final String? imageUrl;
-  final String createdAt;
-  final String updatedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final int likeCount;
   final int commentCount;
   final String authorUsername;
@@ -28,8 +28,8 @@ class PostModel {
       id: json['id'],
       content: json['content'],
       imageUrl: json['imageUrl']?.isEmpty ?? true ? null : json['imageUrl'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
       likeCount: json['likesCount'] ?? 0,
       commentCount: json['commentsCount'] ?? 0,
       authorUsername: json['author']['username'],
