@@ -28,12 +28,16 @@ class EsgiXApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider(create: (context) => postService),
+        RepositoryProvider.value(value: authService),
+        RepositoryProvider.value(value: postService),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => AuthBloc(authService),
+          ),
+          BlocProvider(
+            create: (context) => HomeBloc(postService),
           ),
           BlocProvider(
             create: (context) => RegisterBloc(authService),
