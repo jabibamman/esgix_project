@@ -6,6 +6,9 @@ class PostModel {
   final String updatedAt;
   final int likeCount;
   final int commentCount;
+  final String authorUsername;
+  final String? authorAvatar;
+  final String? parent;
 
   PostModel({
     required this.id,
@@ -15,24 +18,40 @@ class PostModel {
     required this.updatedAt,
     required this.likeCount,
     required this.commentCount,
+    required this.authorUsername,
+    this.authorAvatar,
+    this.parent,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
       id: json['id'],
       content: json['content'],
-      imageUrl: json['imageUrl'],
+      imageUrl: json['imageUrl']?.isEmpty ?? true ? null : json['imageUrl'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
-      likeCount: json['likeCount'] ?? 0,
-      commentCount: json['commentCount'] ?? 0,
+      likeCount: json['likesCount'] ?? 0,
+      commentCount: json['commentsCount'] ?? 0,
+      authorUsername: json['author']['username'],
+      authorAvatar: json['author']['avatar']?.isEmpty ?? true ? null : json['author']['avatar'],
+      parent: json['parent']?.isEmpty ?? true ? null : json['parent'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'content': content,
       'imageUrl': imageUrl,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'likeCount': likeCount,
+      'commentCount': commentCount,
+      'author': {
+        'username': authorUsername,
+        'avatar': authorAvatar,
+      },
+      'parent': parent,
     };
   }
 }

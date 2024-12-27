@@ -46,7 +46,6 @@ class PostService {
       throw PostCreationException(message);
     }
   }
-
   Future<List<PostModel>> getPosts({int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -57,10 +56,13 @@ class PostService {
         },
       );
 
-      if (response.statusCode == 200) {
-        return (response.data['records'] as List)
-            .map((json) => PostModel.fromJson(json))
-            .toList();
+      if (response.statusCode == 200 && response.data != null) {
+        final records = response.data['data'] as List?;
+        if (records != null) {
+          return records.map((json) => PostModel.fromJson(json)).toList();
+        } else {
+          throw PostFetchException("Aucun post trouvé ou format invalide.");
+        }
       } else {
         throw PostFetchException("Erreur lors de la récupération des posts.");
       }
@@ -70,6 +72,8 @@ class PostService {
       throw PostFetchException(message);
     }
   }
+
+
 
   Future<PostModel> getPostById(String postId) async {
     try {
