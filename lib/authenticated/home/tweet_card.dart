@@ -1,14 +1,65 @@
 import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
+import '../../shared/services/post_service.dart';
+import '../../shared/services/user_service.dart';
 import '../../shared/utils/interaction_utils.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 import 'package:esgix_project/shared/utils/date_utils.dart';
 
-class TweetCard extends StatelessWidget {
+class TweetCard extends StatefulWidget {
   final PostModel post;
+  final String userId;
 
-  const TweetCard({super.key, required this.post});
+  const TweetCard({super.key, required this.post, required this.userId});
+
+  @override
+  _TweetCardState createState() => _TweetCardState();
+}
+
+class _TweetCardState extends State<TweetCard> {
+  late int likeCount;
+  late bool isLiked;
+  final PostService postService = PostService();
+  final UserService userService = UserService();
+
+  @override
+  void initState() {
+    super.initState();
+    likeCount = widget.post.likeCount;
+    isLiked = false;
+    _checkIfLiked();
+  }
+
+
+  Future<void> _checkIfLiked() async {
+    try {
+      final userId = await postService.getId();
+      final postLikes = await userService.getUsersWhoLikedPost(widget.post.id);
+      if (mounted) {
+        setState(() {
+          isLiked = postLikes.any((like) => like['userId'] == userId);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        print("Erreur lors de la vérification des likes : $e");
+      }
+    }
+  }
+
+
+  Future<void> _handleLike() async {
+    try {
+      await postService.likePost(widget.post.id);
+      setState(() {
+        isLiked = !isLiked;
+        likeCount += isLiked ? 1 : -1;
+      });
+    } catch (e) {
+      print("Erreur lors de l'ajout d'un like : $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +76,7 @@ class TweetCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(25.0),
               child: Image.network(
-                post.authorAvatar ?? '',
+                widget.post.authorAvatar ?? '',
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,
@@ -42,24 +93,24 @@ class TweetCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        post.authorUsername,
+                        widget.post.authorUsername,
                         style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        formatTwitterDate(post.createdAt),
+                        formatTwitterDate(widget.post.createdAt),
                         style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4.0),
                   Text(
-                    post.content,
+                    widget.post.content,
                     style: TextStyles.bodyText1,
                   ),
-                  if (post.imageUrl != null) ...[
+                  if (widget.post.imageUrl != null) ...[
                     const SizedBox(height: 8.0),
                     Image.network(
-                      post.imageUrl!,
+                      widget.post.imageUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 100,
@@ -74,9 +125,21 @@ class TweetCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      buildInteractionIcon(Icons.comment, post.commentCount),
+                      buildInteractionIcon(Icons.comment, widget.post.commentCount),
                       buildInteractionIcon(Icons.repeat, generateRandomAudience(max: 500)),
-                      buildInteractionIcon(Icons.favorite_border, post.likeCount),
+                      GestureDetector(
+                        onTap: _handleLike,
+                        child: Row(
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.grey,
+                            ),
+                            const SizedBox(width: 4.0),
+                            Text('$likeCount'),
+                          ],
+                        ),
+                      ),
                       buildInteractionIcon(Icons.bar_chart, generateRandomAudience()),
                       buildInteractionIcon(Icons.bookmark_border, null),
                       buildInteractionIcon(Icons.share, null),
@@ -91,4 +154,13 @@ class TweetCard extends StatelessWidget {
     );
   }
 
+  Widget buildInteractionIcon(IconData icon, int? count) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.darkGray),
+        const SizedBox(width: 4.0),
+        if (count != null) Text('$count'),
+      ],
+    );
+  }
 }

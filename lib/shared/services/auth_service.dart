@@ -30,6 +30,8 @@ class AuthService {
       if (response.statusCode == 200) {
         final token = response.data['token'];
         await _persistToken(token);
+        final userId = response.data['record']['id'];
+        await _persistId(userId);
         dio.options.headers['Authorization'] = 'Bearer $token';
         return UserModel.fromJson(response.data['record']);
       } else {
@@ -92,6 +94,10 @@ class AuthService {
 
   Future<void> _persistToken(String token) async {
     await secureStorage.write(key: 'auth_token', value: token);
+  }
+
+  Future<void> _persistId(String userId) async {
+    await secureStorage.write(key: 'auth_id', value: userId);
   }
 
   Future<void> _clearToken() async {

@@ -7,6 +7,7 @@ import '../../authenticated/home/tweet_card.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -112,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }
                     final post = state.posts[index];
-                    return TweetCard(post: post);
+                    return TweetCard(post: post, userId: '');
                   },
                 );
               } else if (state is HomeError) {

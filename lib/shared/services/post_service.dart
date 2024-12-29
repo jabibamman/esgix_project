@@ -24,6 +24,10 @@ class PostService {
     return await secureStorage.read(key: 'auth_token') ?? '';
   }
 
+  Future<String> getId() async {
+    return await secureStorage.read(key: 'auth_id') ?? '';
+  }
+
   Future<PostModel> createPost(String content, {String? imageUrl}) async {
     try {
       final token = await _getToken();
@@ -158,7 +162,11 @@ class PostService {
 
   Future<void> likePost(String postId) async {
     try {
-      final response = await dio.post('/likes/$postId');
+      final token = await _getToken();
+      final response = await dio.post('/likes/$postId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ));
 
       if (response.statusCode != 200) {
         throw PostLikeException("Erreur lors de l'ajout d'un like au post.");

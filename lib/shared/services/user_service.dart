@@ -120,11 +120,11 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUsersWhoLikedPost(String postId) async {
+  Future<dynamic> getUsersWhoLikedPost(String postId) async {
     try {
       final response = await dio.get('/likes/$postId/users');
       if (response.statusCode == 200) {
-        return response.data['users'] as List<dynamic>;
+        return response.data;
       } else {
         throw UsersWhoLikedPostFetchException(
             "Erreur lors de la récupération des utilisateurs ayant aimé le post.");
