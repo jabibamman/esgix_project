@@ -32,19 +32,18 @@ class _TweetCardState extends State<TweetCard> {
   }
 
 
+
   Future<void> _checkIfLiked() async {
     try {
       final userId = await postService.getId();
       final postLikes = await userService.getUsersWhoLikedPost(widget.post.id);
-      if (mounted) {
-        setState(() {
-          isLiked = postLikes.any((like) => like['userId'] == userId);
-        });
-      }
+
+      if (!mounted) return;
+      setState(() {
+        isLiked = postLikes.any((like) => like['id'] == userId);
+      });
     } catch (e) {
-      if (mounted) {
-        print("Erreur lors de la vérification des likes : $e");
-      }
+      print("Erreur lors de la vérification des likes : $e");
     }
   }
 
@@ -52,6 +51,7 @@ class _TweetCardState extends State<TweetCard> {
   Future<void> _handleLike() async {
     try {
       await postService.likePost(widget.post.id);
+      if (!mounted) return;
       setState(() {
         isLiked = !isLiked;
         likeCount += isLiked ? 1 : -1;
@@ -60,6 +60,13 @@ class _TweetCardState extends State<TweetCard> {
       print("Erreur lors de l'ajout d'un like : $e");
     }
   }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
