@@ -64,6 +64,7 @@ class EsgiXApp extends StatelessWidget {
               ),
               home: snapshot.data ?? const LoginScreen(),
               routes: AppRoutes.getRoutes(),
+              onGenerateRoute: AppRoutes.onGenerateRoute,
             );
           },
         ),
