@@ -4,6 +4,7 @@ import '../../shared/blocs/home_bloc/home_bloc.dart';
 import '../../shared/blocs/home_bloc/home_event.dart';
 import '../../shared/blocs/home_bloc/home_state.dart';
 import '../../authenticated/home/tweet_card.dart';
+import '../../shared/utils/responsive_utils.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 
@@ -24,11 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     context.read<HomeBloc>().add(FetchPosts());
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100 && !isLoadingMore) {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 20 && !isLoadingMore) {
         setState(() {
           isLoadingMore = true;
         });
-        context.read<HomeBloc>().add(FetchPosts());
+        final loadMoreOffset = calculateOffset(context);
+        context.read<HomeBloc>().add(FetchPosts(offset: loadMoreOffset));
       }
     });
   }
@@ -87,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _scrollController,
                   itemCount: state.posts.length + (isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index == state.posts.length) {
+                    if (index >= state.posts.length) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Center(

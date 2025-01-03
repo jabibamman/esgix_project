@@ -9,7 +9,7 @@ class FetchPosts extends HomeEvent {
   final int page;
   final int offset;
 
-  FetchPosts({this.page = 0, this.offset = 10});
+  FetchPosts({this.page = 1, this.offset = 10});
 
   @override
   List<Object?> get props => [page, offset];

@@ -17,7 +17,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       isLoadingMore = true;
       //emit(HomeLoading()); // TODO fix for loading more
       try {
-        final newPosts = await postService.getPosts(page: currentPage, offset: 5);
+        final newPosts = await postService.getPosts(page: currentPage, offset: event.offset);
         if (newPosts.isNotEmpty) {
           currentPage++;
           allPosts.addAll(newPosts);

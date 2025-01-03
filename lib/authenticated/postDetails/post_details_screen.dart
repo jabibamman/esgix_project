@@ -28,12 +28,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Future<void> addComment(String content) async {
     try {
+
       await postService.createPost(content, parentId: widget.postId);
       setState(() {
         comments = postService.getPosts(parentId: widget.postId);
       });
     } catch (e) {
-      print("Erreur lors de l'ajout du commentaire : $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur lors de l'ajout du commentaire : $e")));
     }
   }
 
