@@ -40,6 +40,11 @@ class PasswordChanged extends RegisterEvent {
   const PasswordChanged(this.password, this.confirmPassword);
 }
 
+class UsernameChanged extends RegisterEvent {
+  final String username;
+  const UsernameChanged(this.username);
+}
+
 class RegisterPreviousStep extends RegisterEvent {}
 
 class EmailChanged extends RegisterEvent  {

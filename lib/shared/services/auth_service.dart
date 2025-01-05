@@ -83,12 +83,13 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
+  Future<bool> logout() async {
     try {
       await _clearToken();
       dio.options.headers.remove('Authorization');
+      return true;
     } catch (e) {
-      throw LogoutException("Erreur lors de la déconnexion : ${e.toString()}");
+      return false;
     }
   }
 

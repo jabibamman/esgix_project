@@ -67,6 +67,7 @@ class RegisterStep2Form extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
+
                 context.read<RegisterBloc>().add(
                   SubmitRegistration(
                     email: context.read<RegisterBloc>().state.email ?? '',
