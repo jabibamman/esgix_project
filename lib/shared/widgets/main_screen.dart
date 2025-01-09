@@ -16,31 +16,23 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     Navigator(
-      key: PageStorageKey('HomeNavigator'),
-      onGenerateRoute: (settings) {
-        if (settings.name == '/post') {
-          final postId = settings.arguments as String;
-          return MaterialPageRoute(
-            builder: (context) => PostDetailScreen(postId: postId),
-          );
-        }
-        return MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        );
-      },
+      key: const PageStorageKey('HomeNavigator'),
+      onGenerateRoute: generateRoute,
     ),
     Navigator(
-      key: PageStorageKey('SearchNavigator'),
+      key: const PageStorageKey('SearchNavigator'),
       onGenerateRoute: (settings) {
+        if (settings.name == '/post') {
+          return generateRoute(settings);
+        }
         return MaterialPageRoute(
           builder: (context) => const SearchScreen(),
         );
       },
     ),
-    Center(child: Text("Notifications")),
-    Center(child: Text("Messages")),
+    Center(child: const Text("Notifications")),
+    Center(child: const Text("Messages")),
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,4 +50,17 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+}
+
+Route<dynamic> generateRoute(RouteSettings settings) {
+  if (settings.name == '/post') {
+    final postId = settings.arguments as String;
+    return MaterialPageRoute(
+      builder: (context) => PostDetailScreen(postId: postId),
+    );
+  }
+
+  return MaterialPageRoute(
+    builder: (context) => const HomeScreen(),
+  );
 }
