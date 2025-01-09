@@ -74,6 +74,9 @@ class RegisterStep1Form extends StatelessWidget {
             controller: usernameController,
             decoration: _buildInputDecoration('Username'),
             validator: (value) => value!.isEmpty ? kEmptyUsernameError : null,
+            onChanged: (value) {
+              context.read<RegisterBloc>().add(UsernameChanged(value));
+            },
           ),
           const SizedBox(height: 16.0),
           BlocBuilder<RegisterBloc, RegisterState>(

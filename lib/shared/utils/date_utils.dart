@@ -5,7 +5,7 @@ String formatTwitterDate(DateTime createdAt) {
   final difference = now.difference(createdAt);
 
   if (difference.inSeconds < 60) {
-    return timeago.format(createdAt, locale: 'en_short');
+    return timeago.format(createdAt, locale: 'fr');
   } else if (difference.inMinutes < 60) {
     return '${difference.inMinutes} min';
   } else if (difference.inHours < 24) {

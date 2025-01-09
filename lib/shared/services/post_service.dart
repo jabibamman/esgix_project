@@ -28,75 +28,82 @@ class PostService {
     return await secureStorage.read(key: 'auth_id') ?? '';
   }
 
-  Future<PostModel> createPost(String content, {String? imageUrl}) async {
+  Future<PostModel> createPost(String content, {String? imageUrl, String? parentId}) async {
     try {
       final token = await _getToken();
       final response = await dio.post(
         '/posts',
-        data: {'content': content, 'imageUrl': imageUrl},
+        data: {
+          'content': content,
+          'imageUrl': imageUrl,
+          if (parentId != null) 'parent': parentId,
+        },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
 
       if (response.statusCode == 200) {
-        return PostModel.fromJson(response.data['record']);
+        final postId = response.data['id'];
+        return await getPostById(postId);
       } else {
-        throw PostCreationException("Erreur lors de la création du post.");
+        throw PostCreationException("Erreur lors de la création du post ou du commentaire.");
       }
     } on DioException catch (e) {
       final message = e.response?.data['message'] ??
-          'Erreur réseau lors de la création du post';
+          'Erreur réseau lors de la création du post ou du commentaire';
       throw PostCreationException(message);
     }
   }
-  Future<List<PostModel>> getPosts({int page = 0, int offset = 10}) async {
+
+  Future<List<PostModel>> getPosts({int page = 0, int offset = 10, String? parentId}) async {
     try {
-      final response = await dio.get(
-        '/posts',
-        queryParameters: {
-          'page': page,
-          'offset': offset,
-        },
-      );
+      final queryParameters = {
+        'page': page,
+        'offset': offset,
+        if (parentId != null) 'parent': parentId,
+      };
+      final response = await dio.get('/posts', queryParameters: queryParameters);
 
       if (response.statusCode == 200 && response.data != null) {
         final records = response.data['data'] as List?;
         if (records != null) {
           return records.map((json) => PostModel.fromJson(json)).toList();
         } else {
-          throw PostFetchException("Aucun post trouvé ou format invalide.");
+          throw PostFetchException("Aucun post ou commentaire trouvé ou format invalide.");
         }
       } else {
-        throw PostFetchException("Erreur lors de la récupération des posts.");
+        throw PostFetchException("Erreur lors de la récupération des posts ou des commentaires.");
       }
     } on DioException catch (e) {
       final message = e.response?.data['message'] ??
-          'Erreur réseau lors de la récupération des posts';
+          'Erreur réseau lors de la récupération des posts ou des commentaires';
       throw PostFetchException(message);
     }
   }
-
-
 
   Future<PostModel> getPostById(String postId) async {
     try {
       final response = await dio.get('/posts/$postId');
 
-      if (response.statusCode == 200) {
-        return PostModel.fromJson(response.data['record']);
+      if (response.statusCode == 200 && response.data != null) {
+        final record = response.data;
+        if (record != null) {
+          return PostModel.fromJson(record);
+        } else {
+          throw PostFetchException("Le post est introuvable ou la réponse est invalide.");
+        }
       } else {
         throw PostFetchException("Erreur lors de la récupération du post.");
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ??
-          'Erreur réseau lors de la récupération du post';
+      final message = e.response?.data['message'] ?? 'Erreur réseau lors de la récupération du post';
       throw PostFetchException(message);
     }
   }
 
-  Future<PostModel> updatePost(String postId, String content,
-      {String? imageUrl}) async {
+
+  Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
     try {
       final token = await _getToken();
       final response = await dio.put(
@@ -163,10 +170,12 @@ class PostService {
   Future<void> likePost(String postId) async {
     try {
       final token = await _getToken();
-      final response = await dio.post('/likes/$postId',
+      final response = await dio.post(
+        '/likes/$postId',
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
-        ));
+        ),
+      );
 
       if (response.statusCode != 200) {
         throw PostLikeException("Erreur lors de l'ajout d'un like au post.");
