@@ -1,3 +1,5 @@
+import 'author_model.dart';
+
 class PostModel {
   final String id;
   final String content;
@@ -6,8 +8,7 @@ class PostModel {
   final DateTime updatedAt;
   final int likeCount;
   final int commentCount;
-  final String authorUsername;
-  final String? authorAvatar;
+  final AuthorModel author;
   final String? parent;
   final bool isLiked;
 
@@ -19,8 +20,7 @@ class PostModel {
     required this.updatedAt,
     required this.likeCount,
     required this.commentCount,
-    required this.authorUsername,
-    this.authorAvatar,
+    required this.author,
     this.parent,
     required this.isLiked,
   });
@@ -34,8 +34,7 @@ class PostModel {
       updatedAt: DateTime.parse(json['updatedAt']),
       likeCount: int.tryParse(json['likesCount']?.toString() ?? '0') ?? 0,
       commentCount: int.tryParse(json['commentsCount']?.toString() ?? '0') ?? 0,
-      authorUsername: json['author']['username'],
-      authorAvatar: json['author']['avatar']?.isEmpty ?? true ? null : json['author']['avatar'],
+      author: AuthorModel.fromJson(json['author']),
       parent: json['parent']?.isEmpty ?? true ? null : json['parent'],
       isLiked: json['isLiked'] ?? false,
     );
@@ -51,10 +50,7 @@ class PostModel {
       'updatedAt': updatedAt.toIso8601String(),
       'likeCount': likeCount,
       'commentCount': commentCount,
-      'author': {
-        'username': authorUsername,
-        'avatar': authorAvatar,
-      },
+      'author': author.toJson(),
       'parent': parent,
       'isLiked': isLiked,
     };
