@@ -120,22 +120,17 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUsersWhoLikedPost(String postId) async {
+  Future<List<Map<String, dynamic>>> getUsersWhoLikedPost(String postId) async {
     try {
       final response = await dio.get('/likes/$postId/users');
       if (response.statusCode == 200) {
-        return response.data['users'] as List<dynamic>;
+        return List<Map<String, dynamic>>.from(response.data);
       } else {
-        throw UsersWhoLikedPostFetchException(
-            "Erreur lors de la récupération des utilisateurs ayant aimé le post.");
+        throw Exception("Erreur lors de la récupération des likes");
       }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ??
-          'Erreur réseau lors de la récupération des utilisateurs ayant aimé';
-      throw UsersWhoLikedPostFetchException(message);
     } catch (e) {
-      throw UsersWhoLikedPostFetchException(
-          "Erreur inattendue lors de la récupération des utilisateurs ayant aimé : ${e.toString()}");
+      throw Exception("Erreur réseau lors de la récupération des likes : $e");
     }
   }
+
 }

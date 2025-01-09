@@ -30,6 +30,8 @@ class AuthService {
       if (response.statusCode == 200) {
         final token = response.data['token'];
         await _persistToken(token);
+        final userId = response.data['record']['id'];
+        await _persistId(userId);
         dio.options.headers['Authorization'] = 'Bearer $token';
         return UserModel.fromJson(response.data['record']);
       } else {
@@ -48,9 +50,7 @@ class AuthService {
 
   Future<void> register(UserModel user) async {
     try {
-      print('user json: ${user.toJson()}');
       final response = await dio.post('/auth/register', data: user.toJson());
-      print("le post est fait");
       if (response.statusCode != 200) {
         throw RegistrationException("Échec de l'inscription.");
       }
@@ -94,6 +94,10 @@ class AuthService {
 
   Future<void> _persistToken(String token) async {
     await secureStorage.write(key: 'auth_token', value: token);
+  }
+
+  Future<void> _persistId(String userId) async {
+    await secureStorage.write(key: 'auth_id', value: userId);
   }
 
   Future<void> _clearToken() async {

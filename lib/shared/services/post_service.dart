@@ -24,6 +24,10 @@ class PostService {
     return await secureStorage.read(key: 'auth_token') ?? '';
   }
 
+  Future<String> getId() async {
+    return await secureStorage.read(key: 'auth_id') ?? '';
+  }
+
   Future<PostModel> createPost(String content, {String? imageUrl}) async {
     try {
       final token = await _getToken();
@@ -46,7 +50,6 @@ class PostService {
       throw PostCreationException(message);
     }
   }
-
   Future<List<PostModel>> getPosts({int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -57,10 +60,13 @@ class PostService {
         },
       );
 
-      if (response.statusCode == 200) {
-        return (response.data['records'] as List)
-            .map((json) => PostModel.fromJson(json))
-            .toList();
+      if (response.statusCode == 200 && response.data != null) {
+        final records = response.data['data'] as List?;
+        if (records != null) {
+          return records.map((json) => PostModel.fromJson(json)).toList();
+        } else {
+          throw PostFetchException("Aucun post trouvé ou format invalide.");
+        }
       } else {
         throw PostFetchException("Erreur lors de la récupération des posts.");
       }
@@ -70,6 +76,8 @@ class PostService {
       throw PostFetchException(message);
     }
   }
+
+
 
   Future<PostModel> getPostById(String postId) async {
     try {
@@ -154,7 +162,11 @@ class PostService {
 
   Future<void> likePost(String postId) async {
     try {
-      final response = await dio.post('/likes/$postId');
+      final token = await _getToken();
+      final response = await dio.post('/likes/$postId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ));
 
       if (response.statusCode != 200) {
         throw PostLikeException("Erreur lors de l'ajout d'un like au post.");
