@@ -6,6 +6,14 @@ import '../../unauthenticated/register/register_screen.dart';
 import '../../authenticated/postDetails/post_details_screen.dart';
 import '../services/auth_service.dart';
 class AppRoutes {
+  /* TODO: Uncomment the following code when these others routes are implemented */
+  static const List<String> bottomNavRoutes = [
+    '/home',
+    //'/search',
+    //'/notifications',
+    //'/messages',
+  ];
+
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       '/login': (context) => const LoginScreen(),

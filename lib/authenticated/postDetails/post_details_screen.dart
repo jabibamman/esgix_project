@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
 import '../../shared/services/post_service.dart';
+import '../../shared/widgets/custom_bottom_nav_bar.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 
@@ -71,6 +72,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           );
         },
       ),
+      bottomNavigationBar: CustomBottomNavBar(
+      currentIndex: 0,
+      allowBack: true,
+    ),
     );
   }
 
