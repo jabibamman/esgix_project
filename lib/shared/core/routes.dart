@@ -1,3 +1,4 @@
+import 'package:esgix_project/authenticated/search/search_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../authenticated/home/home_screen.dart';
@@ -9,7 +10,7 @@ class AppRoutes {
   /* TODO: Uncomment the following code when these others routes are implemented */
   static const List<String> bottomNavRoutes = [
     '/home',
-    //'/search',
+    '/search',
     //'/notifications',
     //'/messages',
   ];
@@ -19,6 +20,10 @@ class AppRoutes {
       '/login': (context) => const LoginScreen(),
       '/register': (context) => const RegisterScreen(),
       '/home': (context) => const HomeScreen(),
+      '/search': (context) => const SearchScreen(),
+      //'/search-details': (context) => const SearchDetailsScreen(),
+      //'/notifications': (context) => const NotificationsScreen(),
+      //'/messages': (context) => const MessagesScreen(),
     };
   }
 

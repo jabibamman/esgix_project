@@ -72,10 +72,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           );
         },
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-      currentIndex: 0,
-      allowBack: true,
-    ),
     );
   }
 

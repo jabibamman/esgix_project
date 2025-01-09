@@ -19,19 +19,7 @@ class CustomBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) {
-        if (allowBack) {
-          Navigator.pop(context);
-          return;
-        }
-
         if (index != currentIndex) {
-          Navigator.pushReplacementNamed(
-            context,
-            AppRoutes.bottomNavRoutes[index],
-          );
-        }
-
-        if (onTap != null) {
           onTap!(index);
         }
       },

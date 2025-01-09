@@ -8,6 +8,7 @@ import 'package:esgix_project/shared/services/post_service.dart';
 import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:esgix_project/shared/widgets/main_screen.dart';
 
 
 void main() async {
@@ -62,7 +63,7 @@ class EsgiXApp extends StatelessWidget {
                   ),
                 ),
               ),
-              home: snapshot.data ?? const LoginScreen(),
+              home: const MainScreen(),
               routes: AppRoutes.getRoutes(),
               onGenerateRoute: AppRoutes.onGenerateRoute,
             );

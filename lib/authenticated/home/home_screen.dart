@@ -6,9 +6,8 @@ import '../../shared/blocs/auth_bloc/auth_state.dart';
 import '../../shared/blocs/home_bloc/home_bloc.dart';
 import '../../shared/blocs/home_bloc/home_event.dart';
 import '../../shared/blocs/home_bloc/home_state.dart';
-import '../../authenticated/home/tweet_card.dart';
+import '../../shared/widgets/tweet_card.dart';
 import '../../shared/utils/responsive_utils.dart';
-import '../../shared/widgets/custom_bottom_nav_bar.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 
@@ -153,9 +152,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-        ),
-        bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: 0,
         ),
       ),
     );
