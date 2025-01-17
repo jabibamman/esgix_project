@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../shared/models/post_model.dart';
-import '../../shared/services/post_service.dart';
-import '../../shared/services/user_service.dart';
-import '../../shared/utils/interaction_utils.dart';
+import '../models/post_model.dart';
+import '../services/post_service.dart';
+import '../services/user_service.dart';
+import '../utils/interaction_utils.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 import 'package:esgix_project/shared/utils/date_utils.dart';

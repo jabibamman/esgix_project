@@ -27,8 +27,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogoutRequested(
       LogoutRequested event, Emitter<AuthState> emit) async {
-    await authService.logout();
-    emit(AuthUnauthenticated());
+      if (await authService.logout()) {
+        emit(AuthUnauthenticated());
+        return;
+      }
+      emit(AuthError('Erreur lors de la déconnexion'));
   }
 
   Future<void> _onCheckAuthenticationStatus(
@@ -41,4 +44,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthUnauthenticated());
     }
   }
+
 }

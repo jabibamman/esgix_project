@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
 import '../../shared/services/post_service.dart';
+import '../../shared/widgets/custom_bottom_nav_bar.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 
@@ -18,31 +19,31 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   late Future<List<PostModel>> comments;
   final PostService postService = PostService();
   final TextEditingController commentController = TextEditingController();
-  final Map<String, TextEditingController> replyControllers = {}; // Contrôleurs pour les réponses
-  String? replyingToCommentId; // ID du commentaire auquel on répond
+  final Map<String, TextEditingController> replyControllers = {};
+  String? replyingToCommentId;
 
   @override
   void initState() {
     super.initState();
-    post = postService.getPostById(widget.postId); // Charge le post principal
-    comments = postService.getPosts(parentId: widget.postId); // Charge les commentaires principaux
+    post = postService.getPostById(widget.postId);
+    comments = postService.getPosts(parentId: widget.postId);
   }
 
   Future<List<PostModel>> fetchReplies(String commentId) async {
-    return await postService.getPosts(parentId: commentId); // Récupère les réponses d’un commentaire
+    return await postService.getPosts(parentId: commentId);
   }
 
   Future<void> addComment(String content, {String? parentId}) async {
     try {
-      await postService.createPost(content, parentId: parentId ?? widget.postId); // Crée un commentaire ou une réponse
+      await postService.createPost(content, parentId: parentId ?? widget.postId);
       setState(() {
-        comments = postService.getPosts(parentId: widget.postId); // Recharge tous les commentaires principaux
+        comments = postService.getPosts(parentId: widget.postId);
         if (parentId != null) {
-          replyControllers[parentId]?.clear(); // Efface le champ de réponse
+          replyControllers[parentId]?.clear();
         } else {
-          commentController.clear(); // Efface le champ principal
+          commentController.clear();
         }
-        replyingToCommentId = null; // Réinitialise l'état de réponse
+        replyingToCommentId = null;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +177,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         ),
         if (replyingToCommentId == comment.id) _buildReplyInput(comment.id),
         FutureBuilder<List<PostModel>>(
-          future: fetchReplies(comment.id), // Récupère les réponses pour ce commentaire
+          future: fetchReplies(comment.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -186,7 +187,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             }
             final replies = snapshot.data ?? [];
             if (replies.isEmpty) {
-              return const SizedBox(); // Rien à afficher si aucune réponse
+              return const SizedBox();
             }
             return Padding(
               padding: const EdgeInsets.only(left: 16.0),

@@ -12,6 +12,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<RegisterNextStep>((event, emit) {
       if (state is RegisterStep1) {
         final step1State = state as RegisterStep1;
+
         emit(RegisterStep2(
           email: step1State.email,
           username: step1State.username,
@@ -76,5 +77,16 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       }
     }
     );
+
+    on<UsernameChanged>((event, emit) {
+      if (state is RegisterStep1) {
+        final step1State = state as RegisterStep1;
+        emit(RegisterStep1(
+          email: step1State.email,
+          username: event.username,
+          password: step1State.password,
+        ));
+      }
+    });
   }
 }
