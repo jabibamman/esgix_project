@@ -18,24 +18,46 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   late Future<List<PostModel>> comments;
   final PostService postService = PostService();
   final TextEditingController commentController = TextEditingController();
+  final Map<String, TextEditingController> replyControllers = {}; // Contrôleurs pour les réponses
+  String? replyingToCommentId; // ID du commentaire auquel on répond
 
   @override
   void initState() {
     super.initState();
-    post = postService.getPostById(widget.postId);
-    comments = postService.getPosts(parentId: widget.postId);
+    post = postService.getPostById(widget.postId); // Charge le post principal
+    comments = postService.getPosts(parentId: widget.postId); // Charge les commentaires principaux
   }
 
-  Future<void> addComment(String content) async {
-    try {
+  Future<List<PostModel>> fetchReplies(String commentId) async {
+    return await postService.getPosts(parentId: commentId); // Récupère les réponses d’un commentaire
+  }
 
-      await postService.createPost(content, parentId: widget.postId);
+  Future<void> addComment(String content, {String? parentId}) async {
+    try {
+      await postService.createPost(content, parentId: parentId ?? widget.postId); // Crée un commentaire ou une réponse
       setState(() {
-        comments = postService.getPosts(parentId: widget.postId);
+        comments = postService.getPosts(parentId: widget.postId); // Recharge tous les commentaires principaux
+        if (parentId != null) {
+          replyControllers[parentId]?.clear(); // Efface le champ de réponse
+        } else {
+          commentController.clear(); // Efface le champ principal
+        }
+        replyingToCommentId = null; // Réinitialise l'état de réponse
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur lors de l'ajout du commentaire : $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur lors de l'ajout du commentaire : $e")),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    commentController.dispose();
+    for (var controller in replyControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -113,7 +135,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (snapshot.hasError) {
           return Center(child: Text("Erreur : ${snapshot.error}"));
         }
-        final commentsList = snapshot.data!;
+        final commentsList = snapshot.data ?? [];
         if (commentsList.isEmpty) {
           return const Text("Aucun commentaire pour le moment.");
         }
@@ -123,13 +145,104 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           itemCount: commentsList.length,
           itemBuilder: (context, index) {
             final comment = commentsList[index];
-            return ListTile(
-              title: Text(comment.authorUsername, style: TextStyles.bodyText1),
-              subtitle: Text(comment.content),
-            );
+            return _buildCommentWithReplies(comment);
           },
         );
       },
+    );
+  }
+
+  Widget _buildCommentWithReplies(PostModel comment) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          title: Text(comment.authorUsername, style: TextStyles.bodyText1),
+          subtitle: Text(comment.content),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              setState(() {
+                replyingToCommentId = comment.id;
+                if (!replyControllers.containsKey(comment.id)) {
+                  replyControllers[comment.id] = TextEditingController();
+                }
+              });
+            },
+            child: const Text("Répondre"),
+          ),
+        ),
+        if (replyingToCommentId == comment.id) _buildReplyInput(comment.id),
+        FutureBuilder<List<PostModel>>(
+          future: fetchReplies(comment.id), // Récupère les réponses pour ce commentaire
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text("Erreur : ${snapshot.error}"));
+            }
+            final replies = snapshot.data ?? [];
+            if (replies.isEmpty) {
+              return const SizedBox(); // Rien à afficher si aucune réponse
+            }
+            return Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Column(
+                children: replies
+                    .map((reply) => ListTile(
+                  title: Text(reply.authorUsername, style: TextStyles.bodyText2),
+                  subtitle: Text(reply.content),
+                ))
+                    .toList(),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReplyInput(String parentId) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+      child: Column(
+        children: [
+          TextField(
+            controller: replyControllers[parentId],
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "Écrire une réponse...",
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 8.0),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  final content = replyControllers[parentId]?.text.trim();
+                  if (content != null && content.isNotEmpty) {
+                    addComment(content, parentId: parentId);
+                  }
+                },
+                child: const Text("Publier"),
+              ),
+              const SizedBox(width: 8.0),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    replyingToCommentId = null;
+                  });
+                },
+                child: const Text("Annuler"),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -153,7 +266,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             final content = commentController.text.trim();
             if (content.isNotEmpty) {
               addComment(content);
-              commentController.clear();
             }
           },
           child: const Text("Publier"),

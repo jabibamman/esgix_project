@@ -45,6 +45,7 @@ class PostService {
 
       if (response.statusCode == 200) {
         final postId = response.data['id'];
+        print(response.data);
         return await getPostById(postId);
       } else {
         throw PostCreationException("Erreur lors de la création du post ou du commentaire.");
