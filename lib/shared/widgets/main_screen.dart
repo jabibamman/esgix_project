@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../authenticated/home/home_screen.dart';
+import '../../authenticated/profile/profile_screen.dart';
 import '../../authenticated/search/search_screen.dart';
 import '../../authenticated/postDetails/post_details_screen.dart';
 import '../../shared/widgets/custom_bottom_nav_bar.dart';
@@ -59,8 +60,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       builder: (context) => PostDetailScreen(postId: postId),
     );
   }
+  else if (settings.name == '/profile') {
+    final userId = settings.arguments as String;
+    return MaterialPageRoute(
+      builder: (context) => ProfileScreen(userId: userId),
+    );
+  }
 
   return MaterialPageRoute(
-    builder: (context) => const HomeScreen(),
+    builder: (context) => HomeScreen(),
   );
 }

@@ -6,6 +6,7 @@ import '../../shared/blocs/auth_bloc/auth_state.dart';
 import '../../shared/blocs/home_bloc/home_bloc.dart';
 import '../../shared/blocs/home_bloc/home_event.dart';
 import '../../shared/blocs/home_bloc/home_state.dart';
+import '../../shared/models/user_model.dart';
 import '../../shared/widgets/tweet_card.dart';
 import '../../shared/utils/responsive_utils.dart';
 import '../../theme/colors.dart';
@@ -13,7 +14,13 @@ import '../../theme/images.dart';
 
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final UserModel currentUser = UserModel( //TODO: remove and use authentificated user
+    id: '1',
+    username: 'John Doe',
+    email: 'john@doe.com'
+  );
+
+  HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -56,36 +63,46 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          title: GestureDetector(
-            onTap: () {
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  AppImages.logo,
-                  height: 30,
-                ),
-              ],
-            ),
-          ),
           centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.logout, color: AppColors.primary),
-              tooltip: 'Déconnexion',
-              onPressed: () {
-                context.read<AuthBloc>().add(LogoutRequested());
-              },
-            ),
-          ],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: GestureDetector(
+                  onTap: () =>
+                  {
+                    Navigator.pushNamed(
+                      context,
+                      '/profile',
+                      arguments: widget.currentUser.id,
+                    ),
+                  },
+                  child: Image.network(
+                    widget.currentUser.avatar ?? '',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => CircleAvatar(
+                        radius: 25,
+                        backgroundColor: AppColors.lightGray
+                    ),
+                  ),
+                ),
+              ),
+              Image.asset(
+                AppImages.logo,
+                height: 30,
+              ),
+              IconButton(
+                icon: Icon(Icons.logout, color: AppColors.primary),
+                tooltip: 'Déconnexion',
+                onPressed: () {
+                  context.read<AuthBloc>().add(LogoutRequested());
+                },
+              ),
+            ],
+          ),
         ),
         body: RefreshIndicator(
           onRefresh: _refreshPosts,

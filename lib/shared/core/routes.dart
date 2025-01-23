@@ -1,11 +1,12 @@
-import 'package:esgix_project/authenticated/search/search_screen.dart';
-import 'package:flutter/material.dart';
-
 import '../../authenticated/home/home_screen.dart';
+import '../../shared/services/auth_service.dart';
 import '../../unauthenticated/login/login_screen.dart';
 import '../../unauthenticated/register/register_screen.dart';
 import '../../authenticated/postDetails/post_details_screen.dart';
-import '../services/auth_service.dart';
+import '../../authenticated/profile/profile_screen.dart';
+import '../../authenticated/search/search_screen.dart';
+import 'package:flutter/material.dart';
+
 class AppRoutes {
   /* TODO: Uncomment the following code when these others routes are implemented */
   static const List<String> bottomNavRoutes = [
@@ -19,7 +20,7 @@ class AppRoutes {
     return {
       '/login': (context) => const LoginScreen(),
       '/register': (context) => const RegisterScreen(),
-      '/home': (context) => const HomeScreen(),
+      '/home': (context) => HomeScreen(),
       '/search': (context) => const SearchScreen(),
       //'/search-details': (context) => const SearchDetailsScreen(),
       //'/notifications': (context) => const NotificationsScreen(),
@@ -34,6 +35,12 @@ class AppRoutes {
         builder: (context) => PostDetailScreen(postId: postId),
       );
     }
+    else if (settings.name == '/profile') {
+      final userId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (context) => ProfileScreen(userId: userId),
+      );
+    }
     return MaterialPageRoute(
       builder: (context) => const LoginScreen(),
     );
@@ -41,7 +48,7 @@ class AppRoutes {
 
   static Future<Widget> getInitialRoute() async {
     if (await AuthService().isLoggedIn()) {
-      return const HomeScreen();
+      return HomeScreen();
     }
     return const LoginScreen();
   }

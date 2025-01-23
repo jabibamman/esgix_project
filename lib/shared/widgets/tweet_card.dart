@@ -62,8 +62,7 @@ class _TweetCardState extends State<TweetCard> {
     return GestureDetector(
       onTap: () =>
       {
-        Navigator
-            .pushNamed(
+        Navigator.pushNamed(
           context,
           '/post',
           arguments: widget.post.id,
@@ -81,13 +80,25 @@ class _TweetCardState extends State<TweetCard> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(25.0),
-                child: Image.network(
-                  widget.post.author.avatar ?? '',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      CircleAvatar(radius: 25, backgroundColor: AppColors.lightGray),
+                child: GestureDetector(
+                  onTap: () =>
+                  {
+                    Navigator.pushNamed(
+                      context,
+                      '/profile',
+                      arguments: widget.post.author.id,
+                    ),
+                  },
+                  child: Image.network(
+                    widget.post.author.avatar ?? '',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => CircleAvatar(
+                      radius: 25,
+                      backgroundColor: AppColors.lightGray
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12.0),
