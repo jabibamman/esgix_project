@@ -105,7 +105,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(post.authorUsername, style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
+            Text(post.author.username, style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8.0),
             Text(post.content, style: TextStyles.bodyText1),
             if (post.imageUrl != null) ...[

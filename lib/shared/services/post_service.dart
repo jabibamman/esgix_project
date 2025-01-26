@@ -147,17 +147,24 @@ class PostService {
     }
   }
 
-  Future<List<PostModel>> searchPosts(String query) async {
+  Future<List<PostModel>> searchPosts({int page = 0, int offset = 10, required String query}) async {
     try {
       final response = await dio.get(
         '/search',
-        queryParameters: {'query': query},
+        queryParameters: {
+          'page': page,
+          'offset': offset,
+          'query': query
+        },
       );
 
       if (response.statusCode == 200) {
-        return (response.data['records'] as List)
-            .map((json) => PostModel.fromJson(json))
-            .toList();
+        final records = response.data['data'] as List?;
+        if (records != null) {
+          return records.map((json) => PostModel.fromJson(json)).toList();
+        } else {
+          throw PostSearchException("Aucun post trouvé ou format invalide.");
+        }
       } else {
         throw PostSearchException("Erreur lors de la recherche des posts.");
       }

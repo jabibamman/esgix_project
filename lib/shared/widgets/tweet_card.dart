@@ -9,9 +9,8 @@ import 'package:esgix_project/shared/utils/date_utils.dart';
 
 class TweetCard extends StatefulWidget {
   final PostModel post;
-  final String userId;
 
-  const TweetCard({super.key, required this.post, required this.userId});
+  const TweetCard({super.key, required this.post});
 
   @override
   _TweetCardState createState() => _TweetCardState();
@@ -61,11 +60,15 @@ class _TweetCardState extends State<TweetCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(
-        context,
-        '/post',
-        arguments: widget.post.id,
-      ),
+      onTap: () =>
+      {
+        Navigator
+            .pushNamed(
+          context,
+          '/post',
+          arguments: widget.post.id,
+        ),
+      },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         shape: RoundedRectangleBorder(
@@ -79,7 +82,7 @@ class _TweetCardState extends State<TweetCard> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(25.0),
                 child: Image.network(
-                  widget.post.authorAvatar ?? '',
+                  widget.post.author.avatar ?? '',
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
@@ -96,7 +99,7 @@ class _TweetCardState extends State<TweetCard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          widget.post.authorUsername,
+                          widget.post.author.username,
                           style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(

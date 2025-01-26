@@ -1,6 +1,7 @@
 import 'package:esgix_project/shared/blocs/auth_bloc/auth_bloc.dart';
 import 'package:esgix_project/shared/blocs/home_bloc/home_bloc.dart';
 import 'package:esgix_project/shared/blocs/register_bloc/register_bloc.dart';
+import 'package:esgix_project/shared/blocs/search_bloc/search_bloc.dart';
 import 'package:esgix_project/shared/core/app_config.dart';
 import 'package:esgix_project/shared/core/routes.dart';
 import 'package:esgix_project/shared/services/auth_service.dart';
@@ -42,6 +43,9 @@ class EsgiXApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => RegisterBloc(authService),
+          ),
+          BlocProvider(
+            create: (context) => SearchBloc(postService),
           ),
         ],
         child: FutureBuilder<Widget>(

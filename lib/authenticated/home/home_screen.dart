@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
                       final post = state.posts[index];
-                      return TweetCard(post: post, userId: '');
+                      return TweetCard(post: post);
                     },
                   );
                 } else if (state is HomeError) {
