@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/image_utils.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../services/user_service.dart';
@@ -79,16 +80,13 @@ class _TweetCardState extends State<TweetCard> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: Image.network(
-                  widget.post.author.avatar ?? '',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      CircleAvatar(radius: 25, backgroundColor: AppColors.lightGray),
-                ),
+              buildImage(
+                imageUrl: widget.post.author.avatar,
+                width: 50,
+                height: 50,
+                borderRadius: 25.0,
+                placeholderColor: AppColors.lightGray,
+                placeholderIcon: Icons.person,
               ),
               const SizedBox(width: 12.0),
               Expanded(
@@ -115,16 +113,13 @@ class _TweetCardState extends State<TweetCard> {
                     ),
                     if (widget.post.imageUrl != null) ...[
                       const SizedBox(height: 8.0),
-                      Image.network(
-                        widget.post.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 100,
-                          color: AppColors.lightGray,
-                          child: Center(
-                            child: Icon(Icons.broken_image, color: AppColors.darkGray),
-                          ),
-                        ),
+                      buildImage(
+                        imageUrl: widget.post.imageUrl,
+                        width: double.infinity,
+                        height: 200,
+                        borderRadius: 12.0,
+                        placeholderColor: AppColors.lightGray,
+                        placeholderIcon: Icons.broken_image,
                       ),
                     ],
                     const SizedBox(height: 8.0),

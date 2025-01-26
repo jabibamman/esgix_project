@@ -10,7 +10,7 @@ class PostModel {
   final int commentCount;
   final AuthorModel author;
   final String? parent;
-  final bool isLiked;
+  late final bool isLiked;
 
   PostModel({
     required this.id,

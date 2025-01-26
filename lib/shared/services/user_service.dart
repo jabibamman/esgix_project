@@ -133,4 +133,8 @@ class UserService {
     }
   }
 
+  Future<String> getId() {
+    return secureStorage.read(key: 'auth_id').then((id) => id ?? '');
+  }
+
 }

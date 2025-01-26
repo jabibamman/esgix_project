@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
 import '../../shared/services/post_service.dart';
 import '../../shared/widgets/custom_bottom_nav_bar.dart';
+import '../../shared/widgets/tweet_card.dart';
+import '../../shared/widgets/tweet_detail_card.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 
@@ -98,32 +100,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildPostDetails(PostModel post) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(post.author.username, style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8.0),
-            Text(post.content, style: TextStyles.bodyText1),
-            if (post.imageUrl != null) ...[
-              const SizedBox(height: 8.0),
-              Image.network(
-                post.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 100,
-                  color: AppColors.lightGray,
-                  child: Center(child: Icon(Icons.broken_image, color: AppColors.darkGray)),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
+    return TweetDetailCard(post: post);
   }
 
   Widget _buildCommentsSection() {
@@ -146,7 +123,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           itemCount: commentsList.length,
           itemBuilder: (context, index) {
             final comment = commentsList[index];
-            return _buildCommentWithReplies(comment);
+            return TweetCard(post: comment);
           },
         );
       },
@@ -158,7 +135,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: Text(comment.authorUsername, style: TextStyles.bodyText1),
+          title: Text(comment.author.username, style: TextStyles.bodyText1),
           subtitle: Text(comment.content),
         ),
         Align(
@@ -194,7 +171,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               child: Column(
                 children: replies
                     .map((reply) => ListTile(
-                  title: Text(reply.authorUsername, style: TextStyles.bodyText2),
+                  title: Text(reply.author.username, style: TextStyles.bodyText2),
                   subtitle: Text(reply.content),
                 ))
                     .toList(),

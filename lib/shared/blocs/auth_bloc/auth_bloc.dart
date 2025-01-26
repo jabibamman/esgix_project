@@ -40,7 +40,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (isLoggedIn) {
       final user = await authService.getUserProfile();
       emit(AuthAuthenticated(user));
+      print('User is authenticated');
     } else {
+      print('User is not authenticated');
       emit(AuthUnauthenticated());
     }
   }

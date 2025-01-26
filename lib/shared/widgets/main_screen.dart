@@ -1,3 +1,5 @@
+import 'package:esgix_project/unauthenticated/login/login_screen.dart';
+import 'package:esgix_project/unauthenticated/register/register_screen.dart';
 import 'package:flutter/material.dart';
 import '../../authenticated/home/home_screen.dart';
 import '../../authenticated/search/search_screen.dart';
@@ -16,8 +18,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     Navigator(
-      key: const PageStorageKey('HomeNavigator'),
-      onGenerateRoute: generateRoute,
+      key: const PageStorageKey('LoginNavigator'),
+      onGenerateRoute: (settings) => generateRoute(settings),
     ),
     Navigator(
       key: const PageStorageKey('SearchNavigator'),
@@ -30,9 +32,10 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
     ),
-    Center(child: const Text("Notifications")),
-    Center(child: const Text("Messages")),
+    const Center(child: Text("Notifications")),
+    const Center(child: Text("Messages")),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,14 +56,23 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 Route<dynamic> generateRoute(RouteSettings settings) {
-  if (settings.name == '/post') {
-    final postId = settings.arguments as String;
-    return MaterialPageRoute(
-      builder: (context) => PostDetailScreen(postId: postId),
-    );
+  switch (settings.name) {
+    case '/post':
+      final postId = settings.arguments as String?;
+      return MaterialPageRoute(
+        builder: (context) => PostDetailScreen(postId: postId ?? ""),
+      );
+    case '/login':
+      return MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      );
+    case '/register':
+      return MaterialPageRoute(
+        builder: (context) => const RegisterScreen(),
+      );
+    default:
+      return MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      );
   }
-
-  return MaterialPageRoute(
-    builder: (context) => const HomeScreen(),
-  );
 }
