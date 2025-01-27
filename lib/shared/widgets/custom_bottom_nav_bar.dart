@@ -44,8 +44,8 @@ class CustomBottomNavBar extends StatelessWidget {
           label: 'Notifications',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.message_outlined),
-          activeIcon: Icon(Icons.message),
+          icon: Icon(Icons.email_outlined),
+          activeIcon: Icon(Icons.email),
           label: 'Messages',
         ),
       ],
