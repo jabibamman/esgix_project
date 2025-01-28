@@ -1,3 +1,4 @@
+import 'package:esgix_project/authenticated/createPost/create_post_screen.dart';
 import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:esgix_project/unauthenticated/register/register_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,21 +18,8 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    Navigator(
-      key: const PageStorageKey('LoginNavigator'),
-      onGenerateRoute: (settings) => generateRoute(settings),
-    ),
-    Navigator(
-      key: const PageStorageKey('SearchNavigator'),
-      onGenerateRoute: (settings) {
-        if (settings.name == '/post') {
-          return generateRoute(settings);
-        }
-        return MaterialPageRoute(
-          builder: (context) => const SearchScreen(),
-        );
-      },
-    ),
+    HomeScreen(),
+    const SearchScreen(),
     const Center(child: Text("Notifications")),
     const Center(child: Text("Messages")),
   ];
@@ -51,28 +39,25 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
       ),
-    );
-  }
-}
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final shouldRefresh = await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreatePostScreen(),
+            ),
+          );
 
-Route<dynamic> generateRoute(RouteSettings settings) {
-  switch (settings.name) {
-    case '/post':
-      final postId = settings.arguments as String?;
-      return MaterialPageRoute(
-        builder: (context) => PostDetailScreen(postId: postId ?? ""),
-      );
-    case '/login':
-      return MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      );
-    case '/register':
-      return MaterialPageRoute(
-        builder: (context) => const RegisterScreen(),
-      );
-    default:
-      return MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
-      );
+          if (shouldRefresh == true && _currentIndex == 0) {
+            setState(() {
+              _pages[0] = HomeScreen();
+            });
+          }
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add, size: 32),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
   }
 }
