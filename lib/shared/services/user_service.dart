@@ -42,6 +42,27 @@ class UserService {
     }
   }
 
+  Future<UserModel> getUserById(String userId) async {
+    try {
+      final response = await dio.get('/users/$userId');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final record = response.data;
+        if (record != null) {
+          print(record);
+          return UserModel.fromJson(record);
+        } else {
+          throw UserFetchException("L'utilisateur est introuvable ou la réponse est invalide.");
+        }
+      } else {
+        throw UserFetchException("Erreur lors de la récupération de l'utilisateur.");
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? "Erreur réseau lors de la récupération de l'utilisateur";
+      throw UserFetchException(message);
+    }
+  }
+
   Future<UserModel> updateUserProfile(UserModel user) async {
     try {
       final token = await _getToken();

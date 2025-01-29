@@ -1,3 +1,5 @@
+import 'package:esgix_project/shared/models/user_model.dart';
+import 'package:esgix_project/shared/services/user_service.dart';
 import 'package:esgix_project/theme/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -11,117 +13,134 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late Future<UserModel> user;
+  final UserService userService = UserService();
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    user = userService.getUserById(widget.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.centerLeft,
+        child: FutureBuilder(
+          future: user,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text("Erreur : ${snapshot.error}"));
+            }
+            final user = snapshot.data!;
+            print(user);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
                     children: [
-                      Column(
+                      Stack(
+                        alignment: Alignment.centerLeft,
                         children: [
-                          Container(
-                            color: AppColors.darkGray,
-                            width: double.infinity,
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.all(16),
-                            height: 150,
-                            child: _buildBackButton(),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            height: 213,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 40),
-                                const Text(
-                                  'Pixsellz',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Text(
-                                  '@pixsellz',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.darkGray,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text('description'),
-                                const SizedBox(height: 10),
-                                Row(
+                          Column(
+                            children: [
+                              Container(
+                                color: AppColors.darkGray,
+                                width: double.infinity,
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.all(16),
+                                height: 150,
+                                child: _buildBackButton(),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                height: 213,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(
-                                      Icons.date_range,
-                                      color: AppColors.darkGray,
-                                      size: 16,
-                                    ),
-                                    const Text(
-                                      ' Joined in 2020',
+                                    const SizedBox(height: 40),
+                                    Text(
+                                      user.username,
                                       style: TextStyle(
-                                        color: AppColors.darkGray,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
+                                    if (user.emailVisibility != null && user.emailVisibility!)
+                                      Text(
+                                        user.email,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: AppColors.darkGray,
+                                        ),
+                                      ),
+                                    const SizedBox(height: 10),
+                                    Text(user.description),
+                                    const SizedBox(height: 10),
+                                    if (user.created != null)
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.date_range,
+                                            color: AppColors.darkGray,
+                                            size: 16,
+                                          ),
+                                          Text(
+                                            ' Joined in ${user.created!}',
+                                            style: TextStyle(
+                                              color: AppColors.darkGray,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    const SizedBox(height: 10),
+                                    _buildFollowsCount(following: 217, followers: 118),
                                   ],
                                 ),
-                                const SizedBox(height: 10),
-                                _buildFollowsCount(following: 217, followers: 118),
-                              ],
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                            top: 105,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: _buildAvatar(avatar: user.avatar),
                             ),
                           ),
                         ],
                       ),
-                      Positioned(
-                        top: 105,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: CircleAvatar(
-                            radius: 40,
-                            child: const Icon(
-                              Icons.broken_image,
-                              color: AppColors.darkGray,
-                              size: 40,
-                            ),
-                          ),
-                        ),
-                      ),
+                      _buildBar(),
                     ],
                   ),
-                  _buildBar(),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(15),
                 ),
-                child: const Icon(
-                  Icons.post_add,
-                  color: AppColors.white,
-                  size: 35,
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(15),
+                    ),
+                    child: const Icon(
+                      Icons.post_add,
+                      color: AppColors.white,
+                      size: 35,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          }
         ),
       ),
     );
@@ -139,10 +158,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppColors.black.withValues(alpha: 0.5),
           width: 40,
           height: 40,
-          padding: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(left: 8.0),
           child: Icon(
             Icons.arrow_back_ios,
             color: AppColors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar({ required String? avatar, double size = 80.0 }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size),
+      child: Container(
+        color: AppColors.white,
+        padding: const EdgeInsets.all(3.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size),
+          child: Image.network(
+            avatar ?? '',
+            width: size - 3.0,
+            height: size - 3.0,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => CircleAvatar(
+              radius: 40,
+              backgroundColor: AppColors.white,
+            ),
           ),
         ),
       ),
