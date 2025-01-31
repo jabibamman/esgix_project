@@ -1,3 +1,4 @@
+import 'package:esgix_project/shared/models/post_model.dart';
 import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:esgix_project/unauthenticated/register/register_screen.dart';
 import 'package:flutter/material.dart';
@@ -58,9 +59,9 @@ class _MainScreenState extends State<MainScreen> {
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case '/post':
-      final postId = settings.arguments as String?;
+      final post = settings.arguments as PostModel?;
       return MaterialPageRoute(
-        builder: (context) => PostDetailScreen(postId: postId ?? ""),
+        builder: (context) => PostDetailScreen(post: post),
       );
     case '/login':
       return MaterialPageRoute(

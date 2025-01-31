@@ -10,7 +10,7 @@ class PostModel {
   final int commentCount;
   final AuthorModel author;
   final String? parent;
-  late final bool isLiked;
+  late bool isLiked;
 
   PostModel({
     required this.id,
@@ -36,7 +36,7 @@ class PostModel {
       commentCount: int.tryParse(json['commentsCount']?.toString() ?? '0') ?? 0,
       author: AuthorModel.fromJson(json['author']),
       parent: json['parent']?.isEmpty ?? true ? null : json['parent'],
-      isLiked: json['isLiked'] ?? false,
+      isLiked: false,
     );
   }
 
@@ -54,5 +54,20 @@ class PostModel {
       'parent': parent,
       'isLiked': isLiked,
     };
+  }
+
+  PostModel copyWith({bool? isLiked}) {
+    return PostModel(
+      id: id,
+      content: content,
+      imageUrl: imageUrl,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      likeCount: likeCount,
+      commentCount: commentCount,
+      author: author,
+      parent: parent,
+      isLiked: isLiked ?? this.isLiked,
+    );
   }
 }

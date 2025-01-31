@@ -5,6 +5,7 @@ abstract class PostsEvent {}
 
 class ToggleLikeEvent extends PostsEvent {
   final String postId;
+  final bool isLiked;
 
-  ToggleLikeEvent(this.postId);
+  ToggleLikeEvent(this.postId, this.isLiked);
 }

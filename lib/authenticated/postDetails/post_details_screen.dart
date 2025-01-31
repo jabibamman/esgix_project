@@ -8,9 +8,9 @@ import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 
 class PostDetailScreen extends StatefulWidget {
-  final String postId;
+  final PostModel? post;
 
-  const PostDetailScreen({super.key, required this.postId});
+  const PostDetailScreen({super.key, this.post});
 
   @override
   _PostDetailScreenState createState() => _PostDetailScreenState();
@@ -27,8 +27,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   void initState() {
     super.initState();
-    post = postService.getPostById(widget.postId);
-    comments = postService.getPosts(parentId: widget.postId);
+    if (widget.post != null) {
+      post = Future.value(widget.post);
+    } else {
+      final postId = ModalRoute.of(context)!.settings.arguments as String;
+      post = postService.getPostById(postId);
+    }
+
+    comments = post.then((p) => postService.getPosts(parentId: p.id));
   }
 
   Future<List<PostModel>> fetchReplies(String commentId) async {
@@ -37,9 +43,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Future<void> addComment(String content, {String? parentId}) async {
     try {
-      await postService.createPost(content, parentId: parentId ?? widget.postId);
+      final postModel = await post;
+      await postService.createPost(content, parentId: parentId ?? postModel.id);
       setState(() {
-        comments = postService.getPosts(parentId: widget.postId);
+        comments = postService.getPosts(parentId: postModel.id);
         if (parentId != null) {
           replyControllers[parentId]?.clear();
         } else {
@@ -72,20 +79,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       body: FutureBuilder<PostModel>(
         future: post,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          final postModel = widget.post ?? snapshot.data;
+
+          if (postModel == null && snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-            return Center(child: Text("Erreur : ${snapshot.error}"));
+          if (postModel == null) {
+            return Center(child: Text("Erreur : Impossible de charger le post."));
           }
-          final post = snapshot.data!;
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPostDetails(post),
+                  TweetDetailCard(post: postModel), // ⬅️ On affiche directement le post
                   const SizedBox(height: 16.0),
                   _buildCommentsSection(),
                   const SizedBox(height: 16.0),

@@ -23,7 +23,9 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
       final post = await postService.getPostById(event.postId);
       final userId = await userService.getId();
       final usersPostLikes = await userService.getUsersWhoLikedPost(event.postId);
-      post.isLiked = usersPostLikes.any((like) => like['id'] == userId) ? true : false;
+      final isLikedNow = usersPostLikes.any((like) => like['id'] == userId);
+
+      post.isLiked = isLikedNow;
 
       emit(LikeToggled(
         postId: event.postId,

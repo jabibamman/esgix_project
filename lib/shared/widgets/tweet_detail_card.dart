@@ -16,7 +16,7 @@ class TweetDetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PostsBloc, PostsState>(
       builder: (context, state) {
-        bool isLiked = false;
+        bool isLiked = post.isLiked;
         int likeCount = post.likeCount;
 
         if (state is LikeToggled && state.postId == post.id) {
@@ -71,8 +71,7 @@ class TweetDetailCard extends StatelessWidget {
                     _buildInteractionIcon(Icons.repeat, 500),
                     GestureDetector(
                       onTap: () {
-                        // Émet un événement ToggleLikeEvent au bloc
-                        context.read<PostsBloc>().add(ToggleLikeEvent(post.id));
+                        context.read<PostsBloc>().add(ToggleLikeEvent(post.id, isLiked));
                       },
                       child: Row(
                         children: [

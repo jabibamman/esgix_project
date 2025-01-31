@@ -16,7 +16,6 @@ Widget buildImage({
       child: Icon(placeholderIcon, color: Colors.grey),
     );
   } else if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
-    // Cas : URL en ligne
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: Image.network(
