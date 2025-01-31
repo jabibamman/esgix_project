@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
 import '../../shared/services/post_service.dart';
-import '../../shared/widgets/custom_bottom_nav_bar.dart';
 import '../../shared/widgets/tweet_card.dart';
 import '../../shared/widgets/tweet_detail_card.dart';
-import '../../theme/colors.dart';
-import '../../theme/text_styles.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final PostModel? post;
@@ -94,7 +91,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TweetDetailCard(post: postModel), // ⬅️ On affiche directement le post
+                  TweetDetailCard(post: postModel),
                   const SizedBox(height: 16.0),
                   _buildCommentsSection(),
                   const SizedBox(height: 16.0),
@@ -106,10 +103,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         },
       ),
     );
-  }
-
-  Widget _buildPostDetails(PostModel post) {
-    return TweetDetailCard(post: post);
   }
 
   Widget _buildCommentsSection() {
@@ -136,100 +129,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildCommentWithReplies(PostModel comment) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          title: Text(comment.author.username, style: TextStyles.bodyText1),
-          subtitle: Text(comment.content),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {
-              setState(() {
-                replyingToCommentId = comment.id;
-                if (!replyControllers.containsKey(comment.id)) {
-                  replyControllers[comment.id] = TextEditingController();
-                }
-              });
-            },
-            child: const Text("Répondre"),
-          ),
-        ),
-        if (replyingToCommentId == comment.id) _buildReplyInput(comment.id),
-        FutureBuilder<List<PostModel>>(
-          future: fetchReplies(comment.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text("Erreur : ${snapshot.error}"));
-            }
-            final replies = snapshot.data ?? [];
-            if (replies.isEmpty) {
-              return const SizedBox();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Column(
-                children: replies
-                    .map((reply) => ListTile(
-                  title: Text(reply.author.username, style: TextStyles.bodyText2),
-                  subtitle: Text(reply.content),
-                ))
-                    .toList(),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReplyInput(String parentId) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-      child: Column(
-        children: [
-          TextField(
-            controller: replyControllers[parentId],
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Écrire une réponse...",
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 8.0),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  final content = replyControllers[parentId]?.text.trim();
-                  if (content != null && content.isNotEmpty) {
-                    addComment(content, parentId: parentId);
-                  }
-                },
-                child: const Text("Publier"),
-              ),
-              const SizedBox(width: 8.0),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    replyingToCommentId = null;
-                  });
-                },
-                child: const Text("Annuler"),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 

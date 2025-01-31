@@ -29,12 +29,6 @@ class AppRoutes {
   }
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    if (settings.name == '/post') {
-      final post = settings.arguments as PostModel;
-      return MaterialPageRoute(
-        builder: (context) => PostDetailScreen(post: post),
-      );
-    }
     return MaterialPageRoute(
       builder: (context) => const LoginScreen(),
     );
