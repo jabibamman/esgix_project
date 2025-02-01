@@ -7,19 +7,24 @@ import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 import '../utils/date_utils.dart';
 
-class TweetDetailCard extends StatelessWidget {
+class TweetDetailCard extends StatefulWidget {
   final PostModel post;
 
   const TweetDetailCard({super.key, required this.post});
 
   @override
+  _TweetDetailCardState createState() => _TweetDetailCardState();
+}
+
+class _TweetDetailCardState extends State<TweetDetailCard> {
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<PostsBloc, PostsState>(
       builder: (context, state) {
-        bool isLiked = post.isLiked;
-        int likeCount = post.likeCount;
+        bool isLiked = widget.post.isLiked;
+        int likeCount = widget.post.likeCount;
 
-        if (state is LikeToggled && state.postId == post.id) {
+        if (state is LikeToggled && state.postId == widget.post.id) {
           isLiked = state.isLiked;
           likeCount = state.likeCount;
         }
@@ -37,19 +42,19 @@ class TweetDetailCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAvatar(post.author.avatar),
+                    _buildAvatar(widget.post.author.avatar),
                     const SizedBox(width: 12.0),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            post.author.username,
+                            widget.post.author.username,
                             style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4.0),
                           Text(
-                            formatTwitterDate(post.createdAt),
+                            formatTwitterDate(widget.post.createdAt),
                             style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
                           ),
                         ],
@@ -58,20 +63,20 @@ class TweetDetailCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12.0),
-                Text(post.content, style: TextStyles.bodyText1),
-                if (post.imageUrl != null) ...[
+                Text(widget.post.content, style: TextStyles.bodyText1),
+                if (widget.post.imageUrl != null) ...[
                   const SizedBox(height: 12.0),
-                  _buildImage(post.imageUrl!),
+                  _buildImage(widget.post.imageUrl!),
                 ],
                 const SizedBox(height: 12.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildInteractionIcon(Icons.comment, post.commentCount),
+                    _buildInteractionIcon(Icons.comment, widget.post.commentCount),
                     _buildInteractionIcon(Icons.repeat, 500),
                     GestureDetector(
                       onTap: () {
-                        context.read<PostsBloc>().add(ToggleLikeEvent(post.id, isLiked));
+                        context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, isLiked));
                       },
                       child: Row(
                         children: [
@@ -95,20 +100,9 @@ class TweetDetailCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractionIcon(IconData icon, int? count) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.darkGray),
-        if (count != null) ...[
-          const SizedBox(width: 4.0),
-          Text('$count'),
-        ],
-      ],
-    );
-  }
-
   Widget _buildAvatar(String? avatarUrl) {
     return buildImage(
+      context: context,
       imageUrl: avatarUrl,
       width: 50,
       height: 50,
@@ -120,12 +114,25 @@ class TweetDetailCard extends StatelessWidget {
 
   Widget _buildImage(String imageUrl) {
     return buildImage(
+      context: context,
       imageUrl: imageUrl,
       width: double.infinity,
       height: 200,
       borderRadius: 12.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.broken_image,
+    );
+  }
+
+  Widget _buildInteractionIcon(IconData icon, int? count) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.darkGray),
+        if (count != null) ...[
+          const SizedBox(width: 4.0),
+          Text('$count'),
+        ],
+      ],
     );
   }
 }

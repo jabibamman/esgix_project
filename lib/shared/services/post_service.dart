@@ -58,8 +58,6 @@ class PostService {
   Future<List<PostModel>> getPosts({int page = 0, int offset = 10, String? parentId}) async {
     try {
       final userId = await authService.getId();
-      print("userId: $userId");
-
       final queryParameters = {
         'page': page,
         'offset': offset,

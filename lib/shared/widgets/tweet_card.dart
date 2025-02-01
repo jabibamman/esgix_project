@@ -142,6 +142,7 @@ class _TweetCardState extends State<TweetCard> {
       borderRadius: 25.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.person,
+      context: context,
     );
   }
 
@@ -153,6 +154,7 @@ class _TweetCardState extends State<TweetCard> {
       borderRadius: 12.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.broken_image,
+      context: context,
     );
   }
 }
