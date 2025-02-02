@@ -21,11 +21,11 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
   Widget build(BuildContext context) {
     return BlocBuilder<PostsBloc, PostsState>(
       builder: (context, state) {
-        bool isLiked = widget.post.isLiked;
+        bool likedByUser = widget.post.likedByUser;
         int likeCount = widget.post.likeCount;
 
         if (state is LikeToggled && state.postId == widget.post.id) {
-          isLiked = state.isLiked;
+          likedByUser = state.isLiked;
           likeCount = state.likeCount;
         }
 
@@ -76,13 +76,13 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
                     _buildInteractionIcon(Icons.repeat, 500),
                     GestureDetector(
                       onTap: () {
-                        context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, isLiked));
+                        context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, likedByUser));
                       },
                       child: Row(
                         children: [
                           Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.grey,
+                            likedByUser ? Icons.favorite : Icons.favorite_border,
+                            color: likedByUser ? Colors.red : Colors.grey,
                           ),
                           const SizedBox(width: 4.0),
                           Text('$likeCount'),

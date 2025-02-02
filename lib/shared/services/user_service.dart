@@ -105,14 +105,10 @@ class UserService {
           'offset': offset.toString(),
         },
       );
-      print("API Response: ${response.statusCode == 200 && response.data["data"] is List}");
-
 
       if (response.statusCode == 200 && response.data["data"] is List) {
           var data = response.data["data"];
-          print("API Response: $data");
           data = data.map((json) => UserWhoLikedDto.fromJson(json)).toList();
-          print("API Response: $data");
           return (response.data['data'] as List)
               .map((json) => UserWhoLikedDto.fromJson(json))
               .toList();

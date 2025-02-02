@@ -17,15 +17,15 @@ class TweetCard extends StatefulWidget {
 }
 
 class _TweetCardState extends State<TweetCard> {
-  late bool isLiked;
+  late bool likedByUser;
   late int likeCount;
 
   @override
   void initState() {
     super.initState();
-    isLiked = widget.post.isLiked;
+    likedByUser = widget.post.likedByUser;
     likeCount = widget.post.likeCount;
-    widget.post.isLiked = isLiked;
+    widget.post.likedByUser = likedByUser;
   }
 
   @override
@@ -44,7 +44,7 @@ class _TweetCardState extends State<TweetCard> {
         listener: (context, state) {
           if (state is LikeToggled && state.postId == widget.post.id) {
             setState(() {
-              isLiked = state.isLiked;
+              likedByUser = state.isLiked;
               likeCount = state.likeCount;
             });
           }
@@ -95,13 +95,13 @@ class _TweetCardState extends State<TweetCard> {
                           _buildInteractionIcon(Icons.repeat, 500),
                           GestureDetector(
                             onTap: () {
-                              context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, isLiked));
+                              context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, likedByUser));
                             },
                             child: Row(
                               children: [
                                 Icon(
-                                  isLiked ? Icons.favorite : Icons.favorite_border,
-                                  color: isLiked ? Colors.red : Colors.grey,
+                                  likedByUser ? Icons.favorite : Icons.favorite_border,
+                                  color: likedByUser ? Colors.red : Colors.grey,
                                 ),
                                 const SizedBox(width: 4.0),
                                 Text('$likeCount'),

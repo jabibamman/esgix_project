@@ -43,7 +43,6 @@ class PostService {
 
       if (response.statusCode == 200) {
         final postId = response.data['id'];
-        print(response.data);
         return await getPostById(postId);
       } else {
         throw PostCreationException("Erreur lors de la création du post ou du commentaire.");
@@ -57,25 +56,26 @@ class PostService {
 
   Future<List<PostModel>> getPosts({int page = 0, int offset = 10, String? parentId}) async {
     try {
-      final userId = await authService.getId();
       final queryParameters = {
         'page': page,
         'offset': offset,
         if (parentId != null) 'parent': parentId,
       };
-      final response = await dio.get('/posts', queryParameters: queryParameters);
+      final response = await dio.get(
+          '/posts',
+          queryParameters: queryParameters,
+          options: Options(
+            headers: {'Authorization': 'Bearer ${await authService.getToken()}'},
+          ),
+        );
 
       if (response.statusCode == 200 && response.data != null) {
         final records = response.data['data'] as List?;
         if (records != null) {
-          return Future.wait(records.map((json) async {
+          return records.map((json) {
             final post = PostModel.fromJson(json);
-
-            final likedUsers = await userService.getUsersWhoLikedPost(post.id);
-            final isLiked = likedUsers.any((user) => user['id'] == userId);
-
-            return post.copyWith(isLiked: isLiked);
-          }).toList());
+            return post;
+          }).toList();
         } else {
           throw PostFetchException("Aucun post ou commentaire trouvé ou format invalide.");
         }
@@ -91,7 +91,12 @@ class PostService {
 
   Future<PostModel> getPostById(String postId) async {
     try {
-      final response = await dio.get('/posts/$postId');
+      final response = await dio.get(
+          '/posts/$postId',
+          options: Options(
+            headers: {'Authorization': 'Bearer ${await authService.getToken()}'},
+          ),
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         final record = response.data;
@@ -108,7 +113,6 @@ class PostService {
       throw PostFetchException(message);
     }
   }
-
 
   Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
     try {

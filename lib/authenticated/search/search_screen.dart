@@ -48,7 +48,6 @@ class SearchScreen extends StatelessWidget {
               itemCount: state.results.length,
               itemBuilder: (context, index) {
                 final post = state.results[index];
-                print("post id: ${post.id}");
                 return TweetCard(post: post);
               },
             );
