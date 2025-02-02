@@ -7,7 +7,9 @@
 
 import 'package:esgix_project/shared/services/auth_service.dart';
 import 'package:esgix_project/shared/services/post_service.dart';
+import 'package:esgix_project/shared/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:esgix_project/main.dart';
@@ -15,9 +17,11 @@ import 'package:esgix_project/main.dart';
 void main() {
   final authService = AuthService();
   final postService = PostService();
+  final userService = UserService();
+  var secureStorage = FlutterSecureStorage();
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(EsgiXApp(authService: authService, postService: postService));
+    await tester.pumpWidget(EsgiXApp(authService: authService, postService: postService, userService: userService, secureStorage: secureStorage));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

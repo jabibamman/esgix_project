@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:esgix_project/shared/services/user_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
 import '../models/post_model.dart';
 import '../exceptions/post_exceptions.dart';
+import 'auth_service.dart';
 
 class PostService {
   final Dio dio;
   final FlutterSecureStorage secureStorage;
+  final UserService userService = UserService();
+  final AuthService authService = AuthService();
 
   PostService({Dio? dioClient, FlutterSecureStorage? storage})
       : dio = dioClient ?? Dio(),
@@ -20,17 +26,9 @@ class PostService {
     );
   }
 
-  Future<String> _getToken() async {
-    return await secureStorage.read(key: 'auth_token') ?? '';
-  }
-
-  Future<String> getId() async {
-    return await secureStorage.read(key: 'auth_id') ?? '';
-  }
-
   Future<PostModel> createPost(String content, {String? imageUrl, String? parentId}) async {
     try {
-      final token = await _getToken();
+      final token = await authService.getToken();
       final response = await dio.post(
         '/posts',
         data: {
@@ -45,6 +43,7 @@ class PostService {
 
       if (response.statusCode == 200) {
         final postId = response.data['id'];
+        print(response.data);
         return await getPostById(postId);
       } else {
         throw PostCreationException("Erreur lors de la création du post ou du commentaire.");
@@ -58,6 +57,7 @@ class PostService {
 
   Future<List<PostModel>> getPosts({int page = 0, int offset = 10, String? parentId}) async {
     try {
+      final userId = await authService.getId();
       final queryParameters = {
         'page': page,
         'offset': offset,
@@ -68,16 +68,23 @@ class PostService {
       if (response.statusCode == 200 && response.data != null) {
         final records = response.data['data'] as List?;
         if (records != null) {
-          return records.map((json) => PostModel.fromJson(json)).toList();
+          return Future.wait(records.map((json) async {
+            final post = PostModel.fromJson(json);
+
+            final likedUsers = await userService.getUsersWhoLikedPost(post.id);
+            final isLiked = likedUsers.any((user) => user['id'] == userId);
+
+            return post.copyWith(isLiked: isLiked);
+          }).toList());
         } else {
           throw PostFetchException("Aucun post ou commentaire trouvé ou format invalide.");
         }
       } else {
-        throw PostFetchException("Erreur lors de la récupération des posts ou des commentaires.");
+        throw PostFetchException("Erreur lors de la récupération des posts.");
       }
     } on DioException catch (e) {
       final message = e.response?.data['message'] ??
-          'Erreur réseau lors de la récupération des posts ou des commentaires';
+          'Erreur réseau lors de la récupération des posts';
       throw PostFetchException(message);
     }
   }
@@ -105,7 +112,7 @@ class PostService {
 
   Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
     try {
-      final token = await _getToken();
+      final token = await authService.getToken();
       final response = await dio.put(
         '/posts/$postId',
         data: {'content': content, 'imageUrl': imageUrl},
@@ -128,7 +135,7 @@ class PostService {
 
   Future<void> deletePost(String postId) async {
     try {
-      final token = await _getToken();
+      final token = await authService.getToken();
       final response = await dio.delete(
         '/posts/$postId',
         options: Options(
@@ -176,7 +183,7 @@ class PostService {
 
   Future<void> likePost(String postId) async {
     try {
-      final token = await _getToken();
+      final token = await authService.getToken();
       final response = await dio.post(
         '/likes/$postId',
         options: Options(

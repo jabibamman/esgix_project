@@ -19,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await authService.login(event.email, event.password);
+      print('User: $user');
       emit(AuthAuthenticated(user));
     } catch (e) {
       emit(AuthError(e is LoginException ? e.message : e.toString()));
@@ -40,7 +41,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (isLoggedIn) {
       final user = await authService.getUserProfile();
       emit(AuthAuthenticated(user));
+      print('User is authenticated');
     } else {
+      print('User is not authenticated');
       emit(AuthUnauthenticated());
     }
   }

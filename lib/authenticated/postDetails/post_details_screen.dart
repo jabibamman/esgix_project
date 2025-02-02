@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../shared/models/post_model.dart';
 import '../../shared/services/post_service.dart';
-import '../../shared/widgets/custom_bottom_nav_bar.dart';
-import '../../theme/colors.dart';
-import '../../theme/text_styles.dart';
+import '../../shared/widgets/tweet_card.dart';
+import '../../shared/widgets/tweet_detail_card.dart';
 
 class PostDetailScreen extends StatefulWidget {
-  final String postId;
+  final PostModel? post;
 
-  const PostDetailScreen({super.key, required this.postId});
+  const PostDetailScreen({super.key, this.post});
 
   @override
   _PostDetailScreenState createState() => _PostDetailScreenState();
@@ -19,24 +18,53 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   late Future<List<PostModel>> comments;
   final PostService postService = PostService();
   final TextEditingController commentController = TextEditingController();
+  final Map<String, TextEditingController> replyControllers = {};
+  String? replyingToCommentId;
 
   @override
   void initState() {
     super.initState();
-    post = postService.getPostById(widget.postId);
-    comments = postService.getPosts(parentId: widget.postId);
+    if (widget.post != null) {
+      post = Future.value(widget.post);
+    } else {
+      final postId = ModalRoute.of(context)!.settings.arguments as String;
+      post = postService.getPostById(postId);
+    }
+
+    comments = post.then((p) => postService.getPosts(parentId: p.id));
   }
 
-  Future<void> addComment(String content) async {
-    try {
+  Future<List<PostModel>> fetchReplies(String commentId) async {
+    return await postService.getPosts(parentId: commentId);
+  }
 
-      await postService.createPost(content, parentId: widget.postId);
+  Future<void> addComment(String content, {String? parentId}) async {
+    try {
+      final postModel = await post;
+      await postService.createPost(content, parentId: parentId ?? postModel.id);
       setState(() {
-        comments = postService.getPosts(parentId: widget.postId);
+        comments = postService.getPosts(parentId: postModel.id);
+        if (parentId != null) {
+          replyControllers[parentId]?.clear();
+        } else {
+          commentController.clear();
+        }
+        replyingToCommentId = null;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur lors de l'ajout du commentaire : $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur lors de l'ajout du commentaire : $e")),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    commentController.dispose();
+    for (var controller in replyControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -48,20 +76,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       body: FutureBuilder<PostModel>(
         future: post,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          final postModel = widget.post ?? snapshot.data;
+
+          if (postModel == null && snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-            return Center(child: Text("Erreur : ${snapshot.error}"));
+          if (postModel == null) {
+            return Center(child: Text("Erreur : Impossible de charger le post."));
           }
-          final post = snapshot.data!;
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPostDetails(post),
+                  TweetDetailCard(post: postModel),
                   const SizedBox(height: 16.0),
                   _buildCommentsSection(),
                   const SizedBox(height: 16.0),
@@ -71,35 +101,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildPostDetails(PostModel post) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(post.author.username, style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8.0),
-            Text(post.content, style: TextStyles.bodyText1),
-            if (post.imageUrl != null) ...[
-              const SizedBox(height: 8.0),
-              Image.network(
-                post.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 100,
-                  color: AppColors.lightGray,
-                  child: Center(child: Icon(Icons.broken_image, color: AppColors.darkGray)),
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -114,7 +115,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (snapshot.hasError) {
           return Center(child: Text("Erreur : ${snapshot.error}"));
         }
-        final commentsList = snapshot.data!;
+        final commentsList = snapshot.data ?? [];
         if (commentsList.isEmpty) {
           return const Text("Aucun commentaire pour le moment.");
         }
@@ -124,10 +125,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           itemCount: commentsList.length,
           itemBuilder: (context, index) {
             final comment = commentsList[index];
-            return ListTile(
-              title: Text(comment.author.username, style: TextStyles.bodyText1),
-              subtitle: Text(comment.content),
-            );
+            return TweetCard(post: comment);
           },
         );
       },
@@ -154,7 +152,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             final content = commentController.text.trim();
             if (content.isNotEmpty) {
               addComment(content);
-              commentController.clear();
             }
           },
           child: const Text("Publier"),

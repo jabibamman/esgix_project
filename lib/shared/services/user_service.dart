@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
+import '../dto/UserWhoLikedDto.dart';
 import '../models/user_model.dart';
 import '../exceptions/user_exceptions.dart';
 
@@ -94,7 +95,7 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUserLikedPosts(String userId,
+  Future<List<UserWhoLikedDto>> getUserLikedPosts(String userId,
       {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -104,8 +105,17 @@ class UserService {
           'offset': offset.toString(),
         },
       );
-      if (response.statusCode == 200) {
-        return response.data['liked_posts'] as List<dynamic>;
+      print("API Response: ${response.statusCode == 200 && response.data["data"] is List}");
+
+
+      if (response.statusCode == 200 && response.data["data"] is List) {
+          var data = response.data["data"];
+          print("API Response: $data");
+          data = data.map((json) => UserWhoLikedDto.fromJson(json)).toList();
+          print("API Response: $data");
+          return (response.data['data'] as List)
+              .map((json) => UserWhoLikedDto.fromJson(json))
+              .toList();
       } else {
         throw UserLikedPostsFetchException(
             "Erreur lors de la récupération des posts aimés.");
@@ -131,6 +141,10 @@ class UserService {
     } catch (e) {
       throw Exception("Erreur réseau lors de la récupération des likes : $e");
     }
+  }
+
+  Future<String> getId() {
+    return secureStorage.read(key: 'auth_id').then((id) => id ?? '');
   }
 
 }
