@@ -9,3 +9,9 @@ class ToggleLikeEvent extends PostsEvent {
 
   ToggleLikeEvent(this.postId, this.isLiked);
 }
+
+class FetchLikedUsersEvent extends PostsEvent {
+  final String postId;
+
+  FetchLikedUsersEvent(this.postId);
+}

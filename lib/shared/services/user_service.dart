@@ -126,11 +126,13 @@ class UserService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUsersWhoLikedPost(String postId) async {
+  Future<List<UserWhoLikedDto>> getUsersWhoLikedPost(String postId) async {
     try {
       final response = await dio.get('/likes/$postId/users');
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(response.data);
+        return (response.data as List)
+            .map((json) => UserWhoLikedDto.fromJson(json))
+            .toList();
       } else {
         throw Exception("Erreur lors de la récupération des likes");
       }

@@ -56,7 +56,7 @@ class EsgiXApp extends StatelessWidget {
           BlocProvider(create: (context) => HomeBloc(postService)),
           BlocProvider(create: (context) => RegisterBloc(authService)),
           BlocProvider(create: (context) => SearchBloc(postService)),
-          BlocProvider(create: (context) => PostsBloc(postService, userService, secureStorage)),
+          BlocProvider(create: (context) => PostsBloc(postService, userService)),
         ],
         child: FutureBuilder<Widget>(
           future: AppRoutes.getInitialRoute(),

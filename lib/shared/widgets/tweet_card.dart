@@ -7,6 +7,8 @@ import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 import 'package:esgix_project/shared/utils/date_utils.dart';
 
+import 'liked_users_list.dart';
+
 class TweetCard extends StatefulWidget {
   final PostModel post;
 
@@ -25,19 +27,16 @@ class _TweetCardState extends State<TweetCard> {
     super.initState();
     likedByUser = widget.post.likedByUser;
     likeCount = widget.post.likeCount;
-    widget.post.likedByUser = likedByUser;
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/post',
-          arguments: widget.post,
-        );
-      },
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/post',
+        arguments: widget.post,
+      ),
       child: BlocListener<PostsBloc, PostsState>(
         listenWhen: (previous, current) =>
         current is LikeToggled && current.postId == widget.post.id,
@@ -65,52 +64,15 @@ class _TweetCardState extends State<TweetCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            widget.post.author.username,
-                            style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            formatTwitterDate(widget.post.createdAt),
-                            style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
-                          ),
-                        ],
-                      ),
+                      _buildHeader(),
                       const SizedBox(height: 4.0),
-                      Text(
-                        widget.post.content ?? "Contenu indisponible",
-                        style: TextStyles.bodyText1,
-                      ),
-                      if (widget.post.imageUrl != null && widget.post.imageUrl!.isNotEmpty) ...[
+                      _buildContent(),
+                      if (widget.post.imageUrl?.isNotEmpty ?? false) ...[
                         const SizedBox(height: 8.0),
                         _buildImage(widget.post.imageUrl!),
                       ],
                       const SizedBox(height: 8.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildInteractionIcon(Icons.comment, widget.post.commentCount),
-                          _buildInteractionIcon(Icons.repeat, 500),
-                          GestureDetector(
-                            onTap: () {
-                              context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, likedByUser));
-                            },
-                            child: Row(
-                              children: [
-                                Icon(
-                                  likedByUser ? Icons.favorite : Icons.favorite_border,
-                                  color: likedByUser ? Colors.red : Colors.grey,
-                                ),
-                                const SizedBox(width: 4.0),
-                                Text('$likeCount'),
-                              ],
-                            ),
-                          ),
-                          _buildInteractionIcon(Icons.share, null),
-                        ],
-                      ),
+                      _buildActions(context),
                     ],
                   ),
                 ),
@@ -119,6 +81,66 @@ class _TweetCardState extends State<TweetCard> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          widget.post.author.username,
+          style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          formatTwitterDate(widget.post.createdAt),
+          style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    return Text(
+      widget.post.content ?? "Contenu indisponible",
+      style: TextStyles.bodyText1,
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _buildInteractionIcon(Icons.comment, widget.post.commentCount),
+        _buildInteractionIcon(Icons.repeat, 500),
+        GestureDetector(
+          onTap: () {
+            context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, likedByUser));
+          },
+          child: Row(
+            children: [
+              Icon(
+                likedByUser ? Icons.favorite : Icons.favorite_border,
+                color: likedByUser ? Colors.red : Colors.grey,
+              ),
+              const SizedBox(width: 4.0),
+              Text('$likeCount'),
+            ],
+          ),
+        ),
+        _buildLikeButton(context),
+        _buildInteractionIcon(Icons.share, null),
+      ],
+    );
+  }
+
+  Widget _buildLikeButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.read<PostsBloc>().add(FetchLikedUsersEvent(widget.post.id));
+        LikedUsersList.show(context, widget.post.id);
+      },
+      child: const Icon(Icons.people, color: Colors.blue),
     );
   }
 
