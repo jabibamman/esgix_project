@@ -16,11 +16,26 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.9) {
+      context.read<SearchBloc>().add(SearchLoadMore());
+    }
+  }
 
   @override
   void dispose() {
     searchController.dispose();
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -50,7 +65,8 @@ class _SearchScreenState extends State<SearchScreen> {
         centerTitle: true,
       ),
       body: BlocListener<SearchBloc, SearchState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+        },
         child: BlocBuilder<SearchBloc, SearchState>(
           builder: (context, state) {
             if (state is SearchInitial) {
@@ -67,10 +83,20 @@ class _SearchScreenState extends State<SearchScreen> {
                 );
               }
               return ListView.builder(
-                itemCount: state.results.length,
+                controller: _scrollController,
+                itemCount: state.hasReachedMax
+                    ? state.results.length
+                    : state.results.length + 1,
                 itemBuilder: (context, index) {
-                  final post = state.results[index];
-                  return TweetCard(post: post);
+                  if (index < state.results.length) {
+                    final post = state.results[index];
+                    return TweetCard(post: post);
+                  } else {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
                 },
               );
             } else if (state is SearchError) {

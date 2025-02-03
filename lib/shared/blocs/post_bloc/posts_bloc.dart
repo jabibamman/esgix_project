@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:esgix_project/shared/services/user_service.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meta/meta.dart';
 
 import '../../dto/UserWhoLikedDto.dart';
