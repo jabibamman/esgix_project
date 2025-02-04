@@ -155,6 +155,7 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
   Widget _buildAvatar(String? avatarUrl) {
     return buildImage(
       context: context,
+      post: widget.post,
       imageUrl: avatarUrl,
       width: 50,
       height: 50,
@@ -167,6 +168,7 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
   Widget _buildImage(String imageUrl) {
     return buildImage(
       context: context,
+      post: widget.post,
       imageUrl: imageUrl,
       width: double.infinity,
       height: 200,

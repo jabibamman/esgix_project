@@ -159,6 +159,7 @@ class _TweetCardState extends State<TweetCard> {
   Widget _buildAvatar(String? avatarUrl) {
     return buildImage(
       imageUrl: avatarUrl,
+      post: widget.post,
       width: 50,
       height: 50,
       borderRadius: 25.0,
@@ -171,12 +172,13 @@ class _TweetCardState extends State<TweetCard> {
   Widget _buildImage(String imageUrl) {
     return buildImage(
       imageUrl: imageUrl,
+      post: widget.post,
+      context: context,
       width: double.infinity,
       height: 200,
       borderRadius: 12.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.broken_image,
-      context: context,
     );
   }
 }

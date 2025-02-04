@@ -53,6 +53,7 @@ class LikedUsersList extends StatelessWidget {
   Widget _buildAvatar(BuildContext context, String? avatarUrl) {
     return buildImage(
       imageUrl: avatarUrl,
+      post: null,
       width: 50,
       height: 50,
       borderRadius: 25.0,
