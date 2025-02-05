@@ -165,6 +165,7 @@ class _TweetCardState extends State<TweetCard> {
       borderRadius: 25.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.person,
+      disableActions: true,
       context: context,
     );
   }

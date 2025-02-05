@@ -7,10 +7,12 @@ import '../../shared/models/post_model.dart';
 class ImagePreviewer extends StatefulWidget {
   final String imageUrl;
   final PostModel? post;
+  final bool? disableActions;
 
   const ImagePreviewer({
     Key? key,
     required this.imageUrl,
+    this.disableActions = false,
     this.post,
   }) : super(key: key);
 
@@ -23,15 +25,20 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
   late int likeCount;
   final TextEditingController _commentController = TextEditingController();
 
+  late PostDetailBloc _postDetailBloc;
+
   @override
   void initState() {
     super.initState();
+
     likedByUser = widget.post?.likedByUser ?? false;
     likeCount = widget.post?.likeCount ?? 0;
 
+    _postDetailBloc = context.read<PostDetailBloc>();
+
     final post = widget.post;
     if (post != null) {
-      context.read<PostDetailBloc>().add(LoadPostDetail(postId: post.id, post: post));
+      _postDetailBloc.add(LoadPostDetail(postId: post.id, post: post));
     }
   }
 
@@ -105,10 +112,9 @@ class _ImagePreviewerState extends State<ImagePreviewer> {
                   ),
                 ),
               ),
-
-              if (widget.post != null) _buildActionBar(),
-              if (widget.post != null) _buildCommentsList(comments),
-              if (widget.post != null) _buildCommentField(state),
+              if (!(widget.disableActions ?? false) && widget.post != null) _buildActionBar(),
+              if (!(widget.disableActions ?? false) && widget.post != null) _buildCommentsList(comments),
+              if (!(widget.disableActions ?? false) && widget.post != null) _buildCommentField(state),
             ],
           );
         },

@@ -13,6 +13,7 @@ Widget buildImage({
   double borderRadius = 25.0,
   Color placeholderColor = const Color(0xFFE0E0E0),
   IconData placeholderIcon = Icons.person,
+  bool disableActions = false,
   required BuildContext context,
 }) {
   final imageService = RepositoryProvider.of<ImageService>(context);
@@ -38,6 +39,7 @@ Widget buildImage({
                 builder: (context) => ImagePreviewer(
                   imageUrl: imageUrl,
                   post: post,
+                  disableActions: disableActions,
                 ),
               ),
             );
@@ -67,6 +69,7 @@ Widget buildImage({
             builder: (context) => ImagePreviewer(
               imageUrl: imageUrl,
               post: post,
+              disableActions: disableActions,
             ),
           ),
         );

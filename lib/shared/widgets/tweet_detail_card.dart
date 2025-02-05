@@ -162,6 +162,7 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
       borderRadius: 25.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.person,
+      disableActions: true,
     );
   }
 

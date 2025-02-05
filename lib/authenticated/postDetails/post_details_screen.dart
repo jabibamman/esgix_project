@@ -28,7 +28,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   void dispose() {
     commentController.dispose();
-    context.read<PostDetailBloc>().close();
     super.dispose();
   }
 
