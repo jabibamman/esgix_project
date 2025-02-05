@@ -1,3 +1,4 @@
+import 'package:esgix_project/shared/models/post_model.dart';
 import 'package:esgix_project/authenticated/createPost/create_post_screen.dart';
 import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:esgix_project/unauthenticated/register/register_screen.dart';
@@ -48,16 +49,25 @@ class _MainScreenState extends State<MainScreen> {
             ),
           );
 
-          if (shouldRefresh == true && _currentIndex == 0) {
-            setState(() {
-              _pages[0] = HomeScreen();
-            });
-          }
-        },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, size: 32),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
+Route<dynamic> generateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case '/post':
+      final post = settings.arguments as PostModel?;
+      return MaterialPageRoute(
+        builder: (context) => PostDetailScreen(post: post),
+      );
+    case '/login':
+      return MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      );
+    case '/register':
+      return MaterialPageRoute(
+        builder: (context) => const RegisterScreen(),
+      );
+    default:
+      return MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      );
+   }
+}
 }

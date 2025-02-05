@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
+import '../dto/UserWhoLikedDto.dart';
 import '../models/user_model.dart';
 import '../exceptions/user_exceptions.dart';
 
@@ -94,7 +95,7 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUserLikedPosts(String userId,
+  Future<List<UserWhoLikedDto>> getUserLikedPosts(String userId,
       {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -104,8 +105,13 @@ class UserService {
           'offset': offset.toString(),
         },
       );
-      if (response.statusCode == 200) {
-        return response.data['liked_posts'] as List<dynamic>;
+
+      if (response.statusCode == 200 && response.data["data"] is List) {
+          var data = response.data["data"];
+          data = data.map((json) => UserWhoLikedDto.fromJson(json)).toList();
+          return (response.data['data'] as List)
+              .map((json) => UserWhoLikedDto.fromJson(json))
+              .toList();
       } else {
         throw UserLikedPostsFetchException(
             "Erreur lors de la récupération des posts aimés.");
@@ -120,11 +126,13 @@ class UserService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUsersWhoLikedPost(String postId) async {
+  Future<List<UserWhoLikedDto>> getUsersWhoLikedPost(String postId) async {
     try {
       final response = await dio.get('/likes/$postId/users');
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(response.data);
+        return (response.data as List)
+            .map((json) => UserWhoLikedDto.fromJson(json))
+            .toList();
       } else {
         throw Exception("Erreur lors de la récupération des likes");
       }

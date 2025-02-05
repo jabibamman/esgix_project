@@ -13,6 +13,13 @@ class LikeToggled extends PostsState {
   LikeToggled({required this.postId, required this.isLiked, required this.likeCount});
 }
 
+class LikedUsersFetched extends PostsState {
+  final String postId;
+  final List<UserWhoLikedDto> likedUsers;
+
+  LikedUsersFetched({required this.postId, required this.likedUsers});
+}
+
 class PostsError extends PostsState {
   final String error;
 

@@ -101,6 +101,14 @@ class AuthService {
     await secureStorage.write(key: 'auth_id', value: userId);
   }
 
+  Future<String> getToken() async {
+    return await secureStorage.read(key: 'auth_token') ?? '';
+  }
+
+  Future<String> getId() async {
+    return await secureStorage.read(key: 'auth_id') ?? '';
+  }
+
   Future<void> _clearToken() async {
     await secureStorage.delete(key: 'auth_token');
   }
