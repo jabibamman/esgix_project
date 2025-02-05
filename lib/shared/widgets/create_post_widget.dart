@@ -1,77 +1,18 @@
 import 'package:flutter/material.dart';
-import '../services/post_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/post_creation_bloc/post_creation_bloc.dart';
 
-class CreatePostWidget extends StatefulWidget {
-  const CreatePostWidget({Key? key}) : super(key: key);
+class CreatePostWidget extends StatelessWidget {
+  CreatePostWidget({Key? key}) : super(key: key);
 
-  @override
-  _CreatePostWidgetState createState() => _CreatePostWidgetState();
-}
-
-class _CreatePostWidgetState extends State<CreatePostWidget> {
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
-  final PostService _postService = PostService();
-
-  String? _imageUrl;
-  bool _isSubmitting = false;
-  bool isImageUrlInputVisible = false;
-
-  Future<void> _submitPost() async {
-    final content = _contentController.text.trim();
-
-    if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Le contenu du post ne peut pas être vide.")),
-      );
-      return;
-    }
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      await _postService.createPost(content, imageUrl: _imageUrl);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Post créé avec succès !")),
-      );
-      Navigator.pop(context, true);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur lors de la création du post : $e")),
-      );
-    } finally {
-      setState(() {
-        _isSubmitting = false;
-      });
-    }
-  }
-
-  void _toggleImageInput() {
-    setState(() {
-      isImageUrlInputVisible = !isImageUrlInputVisible;
-    });
-  }
-
-  void _confirmImageUrl() {
-    setState(() {
-      _imageUrl = _imageUrlController.text.trim();
-      isImageUrlInputVisible = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    _contentController.dispose();
-    _imageUrlController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final bloc = context.read<PostCreationBloc>();
 
     double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
@@ -81,123 +22,90 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
       padding: EdgeInsets.only(bottom: keyboardHeight),
       child: Material(
         color: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                spreadRadius: 3,
+        child: BlocConsumer<PostCreationBloc, PostCreationState>(
+          listener: (context, state) {
+            if (state is PostCreationSuccess) {
+              Navigator.pop(context, true);
+            } else if (state is PostCreationError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is PostCreationLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final imageUrl = (state is PostCreationForm) ? state.imageUrl : null;
+            final isImageUrlInputVisible = (state is PostCreationForm) ? state.isImageUrlInputVisible : false;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    spreadRadius: 3,
+                  ),
+                ],
               ),
-            ],
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                TextField(
-                  controller: _contentController,
-                  style: TextStyle(color: colorScheme.onSurface),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorScheme.outline),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _contentController,
+                    decoration: InputDecoration(
+                      hintText: "Quoi de neuf ?",
+                      filled: true,
+                      fillColor: colorScheme.background,
                     ),
-                    hintText: "Quoi de neuf ?",
-                    hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: colorScheme.surface,
+                    maxLines: 5,
                   ),
-                  maxLines: 5,
-                  onTap: () {
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    isImageUrlInputVisible
-                        ? Expanded(
-                      child: TextField(
-                        controller: _imageUrlController,
-                        style: TextStyle(color: colorScheme.onSurface),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: colorScheme.outline),
-                          ),
-                          hintText: "URL de l'image",
-                          hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
-                          filled: true,
-                          fillColor: colorScheme.surface,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      isImageUrlInputVisible
+                          ? Expanded(
+                        child: TextField(
+                          controller: _imageUrlController,
+                          decoration: const InputDecoration(hintText: "URL de l'image"),
+                          onSubmitted: (_) => bloc.add(UpdateImageUrl(_imageUrlController.text.trim())),
                         ),
-                        onSubmitted: (_) => _confirmImageUrl(),
+                      )
+                          : IconButton(
+                        onPressed: () => bloc.add(ToggleImageInput()),
+                        icon: const Icon(Icons.image),
                       ),
-                    )
-                        : IconButton(
-                      onPressed: _toggleImageInput,
-                      icon: Icon(Icons.image, color: colorScheme.primary),
-                    ),
-                    if (isImageUrlInputVisible)
-                      TextButton(
-                        onPressed: _confirmImageUrl,
-                        child: Text(
-                          "Valider",
-                          style: TextStyle(color: colorScheme.primary),
+                      if (isImageUrlInputVisible)
+                        TextButton(
+                          onPressed: () => bloc.add(UpdateImageUrl(_imageUrlController.text.trim())),
+                          child: const Text("Valider"),
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
 
-                if (_imageUrl != null && _imageUrl!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        _imageUrl!,
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Text(
-                            "Impossible de charger l’image",
-                            style: TextStyle(color: Colors.red),
-                          );
-                        },
-                      ),
+                  if (imageUrl != null && imageUrl.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Image.network(imageUrl, height: 150, width: double.infinity, fit: BoxFit.cover),
                     ),
-                  ),
 
-                const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitPost,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
+                  ElevatedButton(
+                    onPressed: () => bloc.add(SubmitPost(content: _contentController.text, imageUrl: imageUrl)),
+                    child: const Text("Publier"),
                   ),
-                  child: _isSubmitting
-                      ? CircularProgressIndicator(color: colorScheme.onPrimary)
-                      : const Text("Publier"),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

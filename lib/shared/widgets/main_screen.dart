@@ -46,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => const CreatePostWidget(),
+            builder: (context) => CreatePostWidget(),
           );
 
           if (shouldRefresh == true && _currentIndex == 0) {
@@ -62,7 +62,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
