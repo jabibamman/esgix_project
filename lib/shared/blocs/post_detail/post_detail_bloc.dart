@@ -18,13 +18,9 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
       LoadPostDetail event, Emitter<PostDetailState> emit) async {
     emit(PostDetailLoading());
     try {
-      PostModel post;
-      if (event.post != null) {
-        post = event.post!;
-      } else {
-        post = await postService.getPostById(event.postId);
-      }
-      final comments = await postService.getPosts(parentId: post.id);
+      final post = event.post ?? await postService.getPostById(event.postId);
+      final List<PostModel> comments = await postService.getPosts(parentId: post.id);
+
       emit(PostDetailLoaded(post: post, comments: comments));
     } catch (e) {
       emit(PostDetailError(e.toString()));
@@ -39,13 +35,13 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
       try {
         final parentId = event.parentId ?? currentState.post.id;
         await postService.createPost(event.content, parentId: parentId);
-        final updatedComments =
+
+        final List<PostModel> updatedComments =
         await postService.getPosts(parentId: currentState.post.id);
-        emit(currentState.copyWith(
-            comments: updatedComments, creatingComment: false));
+
+        emit(currentState.copyWith(comments: updatedComments, creatingComment: false));
       } catch (e) {
-        emit(currentState.copyWith(
-            creatingComment: false, errorMessage: e.toString()));
+        emit(currentState.copyWith(creatingComment: false, errorMessage: e.toString()));
       }
     }
   }
