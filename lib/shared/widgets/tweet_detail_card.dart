@@ -155,18 +155,21 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
   Widget _buildAvatar(String? avatarUrl) {
     return buildImage(
       context: context,
+      post: widget.post,
       imageUrl: avatarUrl,
       width: 50,
       height: 50,
       borderRadius: 25.0,
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.person,
+      disableActions: true,
     );
   }
 
   Widget _buildImage(String imageUrl) {
     return buildImage(
       context: context,
+      post: widget.post,
       imageUrl: imageUrl,
       width: double.infinity,
       height: 200,
