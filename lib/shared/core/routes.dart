@@ -2,6 +2,7 @@ import 'package:esgix_project/authenticated/search/search_screen.dart';
 import 'package:esgix_project/shared/models/post_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../authenticated/createPost/create_post_screen.dart';
 import '../../authenticated/home/home_screen.dart';
 import '../../unauthenticated/login/login_screen.dart';
 import '../../unauthenticated/register/register_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
       '/register': (context) => const RegisterScreen(),
       '/home': (context) => const HomeScreen(),
       '/search': (context) => const SearchScreen(),
+      '/create-post': (context) => const CreatePostScreen(),
       //'/search-details': (context) => const SearchDetailsScreen(),
       //'/notifications': (context) => const NotificationsScreen(),
       //'/messages': (context) => const MessagesScreen(),
