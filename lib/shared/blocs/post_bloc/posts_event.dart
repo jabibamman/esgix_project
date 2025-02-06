@@ -15,3 +15,4 @@ class FetchLikedUsersEvent extends PostsEvent {
 
   FetchLikedUsersEvent(this.postId);
 }
+

@@ -25,3 +25,4 @@ class PostsError extends PostsState {
 
   PostsError(this.error);
 }
+
