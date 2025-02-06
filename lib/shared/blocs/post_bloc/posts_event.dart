@@ -16,3 +16,15 @@ class FetchLikedUsersEvent extends PostsEvent {
   FetchLikedUsersEvent(this.postId);
 }
 
+class EditPostEvent extends PostsEvent {
+  final String postId;
+  final String newContent;
+
+  EditPostEvent({required this.postId, required this.newContent});
+}
+
+class DeletePostEvent extends PostsEvent {
+  final String postId;
+
+  DeletePostEvent({required this.postId});
+}

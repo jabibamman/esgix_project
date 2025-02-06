@@ -114,7 +114,7 @@ class PostService {
     }
   }
 
-  Future<PostModel> updatePost(String postId, String content, {String? imageUrl}) async {
+  Future<String> updatePost(String postId, String content, {String? imageUrl}) async {
     try {
       final token = await authService.getToken();
       final response = await dio.put(
@@ -126,7 +126,7 @@ class PostService {
       );
 
       if (response.statusCode == 200) {
-        return PostModel.fromJson(response.data['record']);
+        return response.data['content'];
       } else {
         throw PostUpdateException("Erreur lors de la mise à jour du post.");
       }

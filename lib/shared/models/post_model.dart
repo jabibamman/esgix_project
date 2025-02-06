@@ -2,7 +2,7 @@ import 'author_model.dart';
 
 class PostModel {
   final String id;
-  final String content;
+  late  String content;
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -39,7 +39,6 @@ class PostModel {
       parent: json['parent']?.isEmpty ?? true ? null : json['parent'],
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

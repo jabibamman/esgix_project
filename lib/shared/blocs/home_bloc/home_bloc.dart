@@ -45,5 +45,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     });
 
+    on<UpdatePostInList>((event, emit) async {
+      final index = allPosts.indexWhere((p) => p.id == event.updatedPost.id);
+      if (index != -1) {
+        allPosts[index] = event.updatedPost;
+        emit(HomeLoaded(List.of(allPosts)));
+      }
+    });
   }
 }
