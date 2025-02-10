@@ -27,24 +27,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     context.read<AuthBloc>().add(FetchStoredUser());
-    context.read<HomeBloc>().add(FetchPosts());
+    context.read<HomeBloc>().add(FetchPosts(offset: 10));
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 20 && !isLoadingMore) {
         setState(() {
           isLoadingMore = true;
         });
-        final loadMoreOffset = calculateOffset(context);
-        context.read<HomeBloc>().add(FetchPosts(offset: loadMoreOffset));
+        context.read<HomeBloc>().add(FetchPosts(offset: 10));
       }
     });
   }
 
-  Future<void> _refreshPosts() async {
-    context.read<HomeBloc>().add(RefreshPosts());
-    await Future.delayed(const Duration(milliseconds: 250));
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,66 +55,81 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pushReplacementNamed(context, '/login');
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is AuthAuthenticated) {
-                return _buildAppBar(context, state.user);
-              } else {
-                return _buildAppBarPlaceholder();
-              }
-            },
+      child: BlocListener<HomeBloc, HomeState>(
+        listener: (context, state) {
+          if (state is HomeLoaded) {
+            setState(() {
+              isLoadingMore = false;
+            });
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            title: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is AuthAuthenticated) {
+                  return _buildAppBar(context, state.user);
+                } else {
+                  return _buildAppBarPlaceholder();
+                }
+              },
+            ),
           ),
-        ),
-        body: RefreshIndicator(
-          onRefresh: _refreshPosts,
-          child: BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              if (state is HomeLoading && context.read<HomeBloc>().allPosts.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                );
-              } else if (state is HomeLoaded) {
-                final posts = state.posts ?? [];
-                if (posts.isEmpty) {
+          body: RefreshIndicator(
+            onRefresh: _refreshPosts,
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                if (state is HomeLoading && context.read<HomeBloc>().allPosts.isEmpty) {
                   return const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  );
+                } else if (state is HomeLoaded) {
+                  final posts = state.posts;
+                  if (posts.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Aucun post disponible",
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: posts.length + (isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < posts.length) {
+                        final post = posts[index];
+                        return TweetCard(key: ValueKey(post.id), post: post);
+                      } else {
+                        return _buildLoadMoreButton(context);
+                      }
+                    },
+                  );
+                } else if (state is HomeError) {
+                  return Center(
                     child: Text(
-                      "Aucun post disponible",
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                      'Erreur: ${state.message}',
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
                   );
                 }
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: posts.length + (isLoadingMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index >= posts.length) {
-                      return _buildLoadMoreButton(context);
-                    }
-                    final post = posts[index];
-                    return TweetCard(key: ValueKey(post.id), post: post);
-                  },
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 );
-              } else if (state is HomeError) {
-                return Center(
-                  child: Text(
-                    'Erreur: ${state.message}',
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              );
-            },
+              },
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _refreshPosts() async {
+    context.read<HomeBloc>().add(RefreshPosts());
+    await Future.delayed(const Duration(milliseconds: 250));
   }
 
   Widget _buildAppBar(BuildContext context, UserModel currentUser) {
@@ -174,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Center(
         child: ElevatedButton.icon(
           onPressed: () {
-            context.read<HomeBloc>().add(FetchPosts());
+            context.read<HomeBloc>().add(FetchPosts(offset: 10));
           },
           icon: const Text('😔'),
           label: const Text(
@@ -192,11 +207,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 }

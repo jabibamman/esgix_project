@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/post_model.dart';
-import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
@@ -18,6 +17,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<FetchUserLikedPosts>(_onFetchUserLikedPosts);
     on<LoadMoreUserLikedPosts>(_onLoadMoreUserLikedPosts);
   }
+
 
   Future<void> _onFetchUserProfile(FetchUserProfile event, Emitter<ProfileState> emit) async {
     try {

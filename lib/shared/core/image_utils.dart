@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/post_model.dart';
 import '../widgets/image_previewer.dart';
@@ -37,19 +38,16 @@ Widget buildImage({
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
-        child: Image.network(
-          imageUrl,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
           width: width,
           height: height,
           fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return _buildLoadingIndicator(borderRadius);
-          },
-          errorBuilder: (context, error, stackTrace) {
+          placeholder: (context, url) => _buildLoadingIndicator(borderRadius),
+          errorWidget: (context, url, error) {
             return _buildPlaceholder(borderRadius, placeholderColor, Icons.broken_image);
           },
-        ),
+        )
       ),
     );
   }
