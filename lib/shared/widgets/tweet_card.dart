@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/post_bloc/posts_bloc.dart';
+import '../core/image_utils.dart';
 import '../models/post_model.dart';
-import '../services/post_service.dart';
-import '../services/user_service.dart';
-import '../utils/interaction_utils.dart';
 import '../../theme/colors.dart';
 import '../../theme/text_styles.dart';
 import 'package:esgix_project/shared/utils/date_utils.dart';
+
+import 'liked_users_list.dart';
 
 class TweetCard extends StatefulWidget {
   final PostModel post;
@@ -17,168 +19,174 @@ class TweetCard extends StatefulWidget {
 }
 
 class _TweetCardState extends State<TweetCard> {
+  late bool likedByUser;
   late int likeCount;
-  late bool isLiked;
-  final PostService postService = PostService();
-  final UserService userService = UserService();
 
   @override
   void initState() {
     super.initState();
+    likedByUser = widget.post.likedByUser;
     likeCount = widget.post.likeCount;
-    isLiked = false;
-    _checkIfLiked();
-  }
-
-  Future<void> _checkIfLiked() async {
-    try {
-      final userId = await postService.getId();
-      final postLikes = await userService.getUsersWhoLikedPost(widget.post.id);
-
-      if (!mounted) return;
-      setState(() {
-        isLiked = postLikes.any((like) => like['id'] == userId);
-      });
-    } catch (e) {
-      print("Erreur lors de la vérification des likes : $e");
-    }
-  }
-
-  Future<void> _handleLike() async {
-    try {
-      await postService.likePost(widget.post.id);
-      if (!mounted) return;
-      setState(() {
-        isLiked = !isLiked;
-        likeCount += isLiked ? 1 : -1;
-      });
-    } catch (e) {
-      print("Erreur lors de l'ajout d'un like : $e");
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-      {
-        Navigator.pushNamed(
-          context,
-          '/post',
-          arguments: widget.post.id,
-        ),
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: GestureDetector(
-                  onTap: () =>
-                  {
-                    Navigator.pushNamed(
-                      context,
-                      '/profile',
-                      arguments: widget.post.author.id,
-                    ),
-                  },
-                  child: Image.network(
-                    widget.post.author.avatar ?? '',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => CircleAvatar(
-                      radius: 25,
-                      backgroundColor: AppColors.lightGray
-                    ),
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/post',
+        arguments: widget.post,
+      ),
+      child: BlocListener<PostsBloc, PostsState>(
+        listenWhen: (previous, current) =>
+        current is LikeToggled && current.postId == widget.post.id,
+        listener: (context, state) {
+          if (state is LikeToggled && state.postId == widget.post.id) {
+            setState(() {
+              likedByUser = state.isLiked;
+              likeCount = state.likeCount;
+            });
+          }
+        },
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAvatar(widget.post.author.avatar),
+                const SizedBox(width: 12.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(),
+                      const SizedBox(height: 4.0),
+                      _buildContent(),
+                      if (widget.post.imageUrl?.isNotEmpty ?? false) ...[
+                        const SizedBox(height: 8.0),
+                        _buildImage(widget.post.imageUrl!),
+                      ],
+                      const SizedBox(height: 8.0),
+                      _buildActions(context),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          widget.post.author.username,
-                          style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          formatTwitterDate(widget.post.createdAt),
-                          style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      widget.post.content,
-                      style: TextStyles.bodyText1,
-                    ),
-                    if (widget.post.imageUrl != null) ...[
-                      const SizedBox(height: 8.0),
-                      Image.network(
-                        widget.post.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 100,
-                          color: AppColors.lightGray,
-                          child: Center(
-                            child: Icon(Icons.broken_image, color: AppColors.darkGray),
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 8.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        buildInteractionIcon(Icons.comment, widget.post.commentCount),
-                        buildInteractionIcon(Icons.repeat, generateRandomAudience(max: 500)),
-                        GestureDetector(
-                          onTap: _handleLike,
-                          child: Row(
-                            children: [
-                              Icon(
-                                isLiked ? Icons.favorite : Icons.favorite_border,
-                                color: isLiked ? Colors.red : Colors.grey,
-                              ),
-                              const SizedBox(width: 4.0),
-                              Text('$likeCount'),
-                            ],
-                          ),
-                        ),
-                        buildInteractionIcon(Icons.bar_chart, generateRandomAudience()),
-                        buildInteractionIcon(Icons.bookmark_border, null),
-                        buildInteractionIcon(Icons.share, null),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget buildInteractionIcon(IconData icon, int? count) {
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          widget.post.author.username,
+          style: TextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          formatTwitterDate(widget.post.createdAt),
+          style: TextStyles.bodyText2.copyWith(color: AppColors.darkGray),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    return Text(
+      widget.post.content ?? "Contenu indisponible",
+      style: TextStyles.bodyText1,
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _buildInteractionIcon(Icons.comment, widget.post.commentCount),
+        _buildInteractionIcon(Icons.repeat, 500),
+        GestureDetector(
+          onTap: () {
+            context.read<PostsBloc>().add(ToggleLikeEvent(widget.post.id, likedByUser));
+          },
+          child: Row(
+            children: [
+              Icon(
+                likedByUser ? Icons.favorite : Icons.favorite_border,
+                color: likedByUser ? Colors.red : Colors.grey,
+                /* TODO
+                    Navigator.pushNamed(
+                      context,
+                      '/profile',
+                      arguments: widget.post.author.id,
+                    ),
+                */
+              ),
+              const SizedBox(width: 4.0),
+              Text('$likeCount'),
+            ],
+          ),
+        ),
+        _buildLikeButton(context),
+        _buildInteractionIcon(Icons.share, null),
+      ],
+    );
+  }
+
+  Widget _buildLikeButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.read<PostsBloc>().add(FetchLikedUsersEvent(widget.post.id));
+        LikedUsersList.show(context, widget.post.id);
+      },
+      child: const Icon(Icons.people, color: Colors.blue),
+    );
+  }
+
+  Widget _buildInteractionIcon(IconData icon, int? count) {
     return Row(
       children: [
         Icon(icon, color: AppColors.darkGray),
-        const SizedBox(width: 4.0),
-        if (count != null) Text('$count'),
+        if (count != null) ...[
+          const SizedBox(width: 4.0),
+          Text('$count'),
+        ],
       ],
+    );
+  }
+
+  Widget _buildAvatar(String? avatarUrl) {
+    return buildImage(
+      imageUrl: avatarUrl,
+      post: widget.post,
+      width: 50,
+      height: 50,
+      borderRadius: 25.0,
+      placeholderColor: AppColors.lightGray,
+      placeholderIcon: Icons.person,
+      disableActions: true,
+      context: context,
+    );
+  }
+
+  Widget _buildImage(String imageUrl) {
+    return buildImage(
+      imageUrl: imageUrl,
+      post: widget.post,
+      context: context,
+      width: double.infinity,
+      height: 200,
+      borderRadius: 12.0,
+      placeholderColor: AppColors.lightGray,
+      placeholderIcon: Icons.broken_image,
     );
   }
 }

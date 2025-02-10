@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../models/post_model.dart';
+
 abstract class HomeEvent extends Equatable {
   @override
   List<Object?> get props => [];
@@ -16,3 +18,8 @@ class FetchPosts extends HomeEvent {
 }
 
 class RefreshPosts extends HomeEvent {}
+
+class UpdatePostInList extends HomeEvent {
+  final PostModel updatedPost;
+  UpdatePostInList(this.updatedPost);
+}

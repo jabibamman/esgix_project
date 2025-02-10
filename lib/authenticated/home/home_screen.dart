@@ -121,11 +121,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   );
                 } else if (state is HomeLoaded) {
+                  final posts = state.posts ?? [];
+                  if (posts.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Aucun post disponible",
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     controller: _scrollController,
-                    itemCount: state.posts.length + (isLoadingMore ? 1 : 0),
+                    itemCount: posts.length + (isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index >= state.posts.length) {
+                      if (index >= posts.length) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
@@ -150,8 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }
-                      final post = state.posts[index];
-                      return TweetCard(post: post);
+                      final post = posts[index];
+                      return TweetCard(
+                          key: ValueKey(post.id),
+                          post: post);
                     },
                   );
                 } else if (state is HomeError) {
