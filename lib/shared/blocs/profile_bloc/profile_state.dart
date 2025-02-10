@@ -59,26 +59,68 @@ class ProfilePostsError extends ProfileState {
   List<Object?> get props => [message];
 }
 
-class ProfileLikedPostsLoaded extends ProfileState {
-  final List<PostModel> posts;
-  final int page;
-  final bool hasReachedMax;
+class ProfileCompositeState extends ProfileState {
+  final UserModel? user;
+  final List<PostModel> tweets;
+  final int tweetsPage;
+  final bool tweetsHasReachedMax;
+  final List<PostModel> likedPosts;
+  final int likedPostsPage;
+  final bool likedPostsHasReachedMax;
+  final bool loadingTweets;
+  final bool loadingLikedPosts;
+  final String? error;
 
-  ProfileLikedPostsLoaded({
-    required this.posts,
-    required this.page,
-    required this.hasReachedMax,
+  ProfileCompositeState({
+    this.user,
+    this.tweets = const [],
+    this.tweetsPage = 0,
+    this.tweetsHasReachedMax = false,
+    this.likedPosts = const [],
+    this.likedPostsPage = 0,
+    this.likedPostsHasReachedMax = false,
+    this.loadingTweets = false,
+    this.loadingLikedPosts = false,
+    this.error,
   });
 
-  ProfileLikedPostsLoaded copyWith({
-    List<PostModel>? posts,
-    int? page,
-    bool? hasReachedMax,
+  ProfileCompositeState copyWith({
+    UserModel? user,
+    List<PostModel>? tweets,
+    int? tweetsPage,
+    bool? tweetsHasReachedMax,
+    List<PostModel>? likedPosts,
+    int? likedPostsPage,
+    bool? likedPostsHasReachedMax,
+    bool? loadingTweets,
+    bool? loadingLikedPosts,
+    String? error,
   }) {
-    return ProfileLikedPostsLoaded(
-      posts: posts ?? this.posts,
-      page: page ?? this.page,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+    return ProfileCompositeState(
+      user: user ?? this.user,
+      tweets: tweets ?? this.tweets,
+      tweetsPage: tweetsPage ?? this.tweetsPage,
+      tweetsHasReachedMax: tweetsHasReachedMax ?? this.tweetsHasReachedMax,
+      likedPosts: likedPosts ?? this.likedPosts,
+      likedPostsPage: likedPostsPage ?? this.likedPostsPage,
+      likedPostsHasReachedMax: likedPostsHasReachedMax ?? this.likedPostsHasReachedMax,
+      loadingTweets: loadingTweets ?? this.loadingTweets,
+      loadingLikedPosts: loadingLikedPosts ?? this.loadingLikedPosts,
+      error: error,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    user,
+    tweets,
+    tweetsPage,
+    tweetsHasReachedMax,
+    likedPosts,
+    likedPostsPage,
+    likedPostsHasReachedMax,
+    loadingTweets,
+    loadingLikedPosts,
+    error,
+  ];
 }

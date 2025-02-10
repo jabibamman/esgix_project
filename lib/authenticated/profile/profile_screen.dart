@@ -24,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
+
     _profileBloc = ProfileBloc(userService: UserService());
     _tabController = TabController(length: 4, vsync: this);
 
@@ -34,17 +35,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        if (_tabController.index == 3) {
-          _profileBloc.add(FetchUserLikedPosts(userId: widget.userId));
-        } else if (_tabController.index == 0) {
+        if (_tabController.index == 0) {
           _profileBloc.add(FetchUserPosts(userId: widget.userId));
+        } else if (_tabController.index == 3) {
+          _profileBloc.add(FetchUserLikedPosts(userId: widget.userId));
         }
       }
     });
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent * 0.9) {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.9) {
         if (_tabController.index == 0) {
           _profileBloc.add(LoadMoreUserPosts(userId: widget.userId));
         } else if (_tabController.index == 3) {
@@ -71,7 +71,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Column(
             children: [
               _buildProfileHeader(),
-              _buildTabBar(),
               Expanded(child: _buildTabBarView()),
             ],
           ),
@@ -82,19 +81,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildProfileHeader() {
     return BlocBuilder<ProfileBloc, ProfileState>(
-      buildWhen: (previous, current) => current is ProfileLoaded,
+      buildWhen: (previous, current) => current is ProfileCompositeState && (current.user != null),
       builder: (context, state) {
-        if (state is ProfileLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (state is ProfileError) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushNamed(context, '/login');
-          });
-          return Container();
-        }
-        if (state is ProfileLoaded) {
-          final user = state.user;
+        if (state is ProfileCompositeState && state.user != null) {
+          final user = state.user!;
           return Column(
             children: [
               Stack(
@@ -120,18 +110,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             const SizedBox(height: 40),
                             Text(
                               user.username,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                             ),
                             if (user.emailVisibility ?? false)
                               Text(
                                 user.email,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.darkGray,
-                                ),
+                                style: const TextStyle(fontSize: 14, color: AppColors.darkGray),
                               ),
                             const SizedBox(height: 10),
                             Text(user.description),
@@ -139,16 +123,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             if (user.created != null)
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.date_range,
-                                    color: AppColors.darkGray,
-                                    size: 16,
-                                  ),
+                                  const Icon(Icons.date_range, color: AppColors.darkGray, size: 16),
                                   Text(
                                     ' Joined in ${user.created!}',
-                                    style: const TextStyle(
-                                      color: AppColors.darkGray,
-                                    ),
+                                    style: const TextStyle(color: AppColors.darkGray),
                                   ),
                                 ],
                               ),
@@ -174,15 +152,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                 ],
               ),
+              _buildBar(),
             ],
           );
         }
-        return Container();
+        return const SizedBox(height: 300, child: Center(child: CircularProgressIndicator()));
       },
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildBar() {
     return TabBar(
       controller: _tabController,
       labelColor: AppColors.primary,
@@ -201,10 +180,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildUserPosts(),      // Tweets
-        Center(child: Text("Retweets")), // Placeholder
-        Center(child: Text("Media")),    // Placeholder
-        _buildUserLikedPosts(), // Likes
+        _buildUserPosts(),
+        Center(child: Text("Retweets")),
+        Center(child: Text("Media")),
+        _buildUserLikedPosts(),
       ],
     );
   }
@@ -212,18 +191,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildUserPosts() {
     return BlocBuilder<ProfileBloc, ProfileState>(
       buildWhen: (previous, current) =>
-      current is ProfilePostsLoaded || current is ProfilePostsLoading || current is ProfileError,
+      current is ProfileCompositeState,
       builder: (context, state) {
-        if (state is ProfilePostsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (state is ProfilePostsLoaded) {
+        if (state is ProfileCompositeState) {
+          if (state.loadingTweets) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state.tweets.isEmpty) {
+            return const Center(child: Text("Aucun tweet trouvé"));
+          }
           return ListView.builder(
             controller: _scrollController,
-            itemCount: state.hasReachedMax ? state.posts.length : state.posts.length + 1,
+            itemCount: state.tweetsHasReachedMax ? state.tweets.length : state.tweets.length + 1,
             itemBuilder: (context, index) {
-              if (index < state.posts.length) {
-                return TweetCard(post: state.posts[index]);
+              if (index < state.tweets.length) {
+                return TweetCard(post: state.tweets[index]);
               } else {
                 return const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -233,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             },
           );
         }
-        return const Center(child: Text("Aucun post trouvé"));
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -241,18 +223,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildUserLikedPosts() {
     return BlocBuilder<ProfileBloc, ProfileState>(
       buildWhen: (previous, current) =>
-      current is ProfileLikedPostsLoaded || current is ProfilePostsLoading || current is ProfileError,
+      current is ProfileCompositeState,
       builder: (context, state) {
-        if (state is ProfilePostsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (state is ProfileLikedPostsLoaded) {
+        if (state is ProfileCompositeState) {
+          if (state.loadingLikedPosts) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state.likedPosts.isEmpty) {
+            return const Center(child: Text("Aucun post liké trouvé"));
+          }
           return ListView.builder(
             controller: _scrollController,
-            itemCount: state.hasReachedMax ? state.posts.length : state.posts.length + 1,
+            itemCount: state.likedPostsHasReachedMax ? state.likedPosts.length : state.likedPosts.length + 1,
             itemBuilder: (context, index) {
-              if (index < state.posts.length) {
-                return TweetCard(post: state.posts[index]);
+              if (index < state.likedPosts.length) {
+                return TweetCard(post: state.likedPosts[index]);
               } else {
                 return const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -262,16 +247,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             },
           );
         }
-        return const Center(child: Text("Aucun post liké trouvé"));
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
 
   Widget _buildBackButton() {
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
+      onTap: () => Navigator.pop(context),
       child: Container(
         alignment: Alignment.center,
         color: AppColors.primary,
@@ -293,4 +276,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ],
     );
   }
+
+
 }
