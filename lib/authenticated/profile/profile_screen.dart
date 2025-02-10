@@ -85,7 +85,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       builder: (context, state) {
         if (state is ProfileCompositeState && state.user != null) {
           final user = state.user!;
-          return Column(
+
+        return Column(
             children: [
               Stack(
                 alignment: Alignment.centerLeft,

@@ -9,7 +9,6 @@ import '../../shared/blocs/home_bloc/home_state.dart';
 import '../../shared/core/image_utils.dart';
 import '../../shared/models/user_model.dart';
 import '../../shared/widgets/tweet_card.dart';
-import '../../shared/utils/responsive_utils.dart';
 import '../../theme/colors.dart';
 import '../../theme/images.dart';
 
@@ -26,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<AuthBloc>().add(FetchStoredUser());
     context.read<HomeBloc>().add(FetchPosts(offset: 10));
 
     _scrollController.addListener(() {
