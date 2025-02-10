@@ -15,7 +15,6 @@ import '../../theme/images.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -40,11 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refreshPosts() async {
+    context.read<HomeBloc>().add(RefreshPosts());
+    await Future.delayed(const Duration(milliseconds: 250));
   }
 
   @override
@@ -125,11 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _refreshPosts() async {
-    context.read<HomeBloc>().add(RefreshPosts());
-    await Future.delayed(const Duration(milliseconds: 250));
   }
 
   Widget _buildAppBar(BuildContext context, UserModel currentUser) {

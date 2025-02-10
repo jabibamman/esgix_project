@@ -23,7 +23,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     isFetching = true;
     try {
       if (state is HomeInitial) {
-        emit(HomeLoading());
+        currentPage = 0;
+        allPosts.clear();
       }
       final newPosts = await postService.getPosts(page: currentPage, offset: event.offset);
       if (newPosts.isEmpty) {
@@ -43,12 +44,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _onRefreshPosts(RefreshPosts event, Emitter<HomeState> emit) async {
     try {
       currentPage = 0;
-      allPosts.clear();
       hasReachedMax = false;
+      allPosts.clear();
       final posts = await postService.getPosts(page: currentPage, offset: 10);
       if (posts.isNotEmpty) {
         currentPage++;
         allPosts.addAll(posts);
+      } else {
+        hasReachedMax = true;
       }
       emit(HomeLoaded(List<PostModel>.from(allPosts)));
     } catch (e) {
