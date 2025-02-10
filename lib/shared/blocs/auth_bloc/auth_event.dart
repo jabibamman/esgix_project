@@ -24,3 +24,5 @@ class LogoutRequested extends AuthEvent {
 class CheckAuthenticationStatus extends AuthEvent {
   const CheckAuthenticationStatus();
 }
+
+class FetchStoredUser extends AuthEvent {}

@@ -14,6 +14,7 @@ Widget buildImage({
   Color placeholderColor = const Color(0xFFE0E0E0),
   IconData placeholderIcon = Icons.person,
   bool disableActions = false,
+  bool disableOpenDetail = false,
   required BuildContext context,
 }) {
   final imageService = RepositoryProvider.of<ImageService>(context);
@@ -32,7 +33,9 @@ Widget buildImage({
         }
 
         return GestureDetector(
-          onTap: () {
+          onTap: disableOpenDetail
+              ? null
+              : () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -62,7 +65,9 @@ Widget buildImage({
     final base64String = imageUrl.split(',').last;
     final bytes = base64Decode(base64String);
     return GestureDetector(
-      onTap: () {
+      onTap: disableOpenDetail
+          ? null
+          : () {
         Navigator.push(
           context,
           MaterialPageRoute(

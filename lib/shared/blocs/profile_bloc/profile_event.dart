@@ -1,4 +1,15 @@
-part of 'profile_bloc.dart';
+import 'package:equatable/equatable.dart';
 
-@immutable
-sealed class ProfileEvent {}
+abstract class ProfileEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class FetchUserProfile extends ProfileEvent {
+  final String userId;
+
+  FetchUserProfile(this.userId);
+
+  @override
+  List<Object> get props => [userId];
+}

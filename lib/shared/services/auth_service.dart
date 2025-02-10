@@ -83,6 +83,23 @@ class AuthService {
     }
   }
 
+
+  Future<UserModel> getUserById(String userId) async {
+    try {
+      final response = await dio.get('/users/$userId');
+
+      if (response.statusCode == 200 && response.data != null) {
+        return UserModel.fromJson(response.data);
+      } else {
+        throw ProfileFetchException("Utilisateur introuvable.");
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ??
+          "Erreur réseau lors de la récupération de l'utilisateur.";
+      throw ProfileFetchException(message);
+    }
+  }
+
   Future<bool> logout() async {
     try {
       await _clearToken();
