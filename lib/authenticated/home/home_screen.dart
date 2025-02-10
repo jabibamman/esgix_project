@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    context.read<AuthBloc>().add(CheckAuthenticationStatus());
+
     context.read<HomeBloc>().add(FetchPosts(offset: 10));
 
     _scrollController.addListener(() {

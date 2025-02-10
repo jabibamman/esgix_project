@@ -7,6 +7,7 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthService authService;
+  bool _hasChecked = false;
 
   AuthBloc(this.authService) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
@@ -37,9 +38,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onCheckAuthenticationStatus(
       CheckAuthenticationStatus event, Emitter<AuthState> emit) async {
+    if (_hasChecked) return;
+    _hasChecked = true;
+
     final isLoggedIn = await authService.isLoggedIn();
     if (isLoggedIn) {
-      add(FetchStoredUser()); // Ajoute un événement pour récupérer l'utilisateur depuis le stockage
+      final userId = await authService.getId();
+      final user = await authService.getUserById(userId);
+      emit(AuthAuthenticated(user));
     } else {
       emit(AuthUnauthenticated());
     }
