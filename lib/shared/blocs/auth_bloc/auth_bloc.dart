@@ -12,6 +12,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthenticationStatus>(_onCheckAuthenticationStatus);
+    on<FetchStoredUser>(_onFetchStoredUser);
   }
 
   Future<void> _onLoginRequested(
@@ -27,22 +28,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogoutRequested(
       LogoutRequested event, Emitter<AuthState> emit) async {
-      if (await authService.logout()) {
-        emit(AuthUnauthenticated());
-        return;
-      }
-      emit(AuthError('Erreur lors de la déconnexion'));
+    if (await authService.logout()) {
+      emit(AuthUnauthenticated());
+      return;
+    }
+    emit(AuthError('Erreur lors de la déconnexion'));
   }
 
   Future<void> _onCheckAuthenticationStatus(
       CheckAuthenticationStatus event, Emitter<AuthState> emit) async {
     final isLoggedIn = await authService.isLoggedIn();
     if (isLoggedIn) {
-      final user = await authService.getUserProfile();
-      emit(AuthAuthenticated(user));
+      add(FetchStoredUser()); // Ajoute un événement pour récupérer l'utilisateur depuis le stockage
     } else {
       emit(AuthUnauthenticated());
     }
   }
 
+  Future<void> _onFetchStoredUser(
+      FetchStoredUser event, Emitter<AuthState> emit) async {
+    try {
+      final userId = await authService.getId(); // Récupère l'ID stocké
+      if (userId.isNotEmpty) {
+        final user = await authService.getUserById(userId);
+        emit(AuthAuthenticated(user));
+      } else {
+        emit(AuthUnauthenticated());
+      }
+    } catch (e) {
+      emit(AuthError("Impossible de récupérer l'utilisateur depuis la session."));
+    }
+  }
 }

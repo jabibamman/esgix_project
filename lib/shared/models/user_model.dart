@@ -20,7 +20,7 @@ class UserModel {
     this.collectionName,
     this.created,
     this.description = '',
-    required this.email,
+    this.email = '',
     this.emailVisibility,
     this.id,
     this.updated,
@@ -37,7 +37,7 @@ class UserModel {
       collectionName: json['collectionName'],
       created: json['created'],
       description: json['description'] ?? '',
-      email: json['email'],
+      email: json['email'] = '',
       emailVisibility: json['emailVisibility'] ?? false,
       id: json['id'],
       updated: json['updated'],
@@ -62,5 +62,10 @@ class UserModel {
       if (updated != null) 'updated': updated,
       if (verified != null) 'verified': verified,
     };
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(apiKey: $apiKey, avatar: $avatar, collectionId: $collectionId, collectionName: $collectionName, created: $created, description: $description, email: $email, emailVisibility: $emailVisibility, id: $id, updated: $updated, username: $username, password: $password, verified: $verified)';
   }
 }

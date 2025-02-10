@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
 import '../dto/UserWhoLikedDto.dart';
+import '../models/post_model.dart';
 import '../models/user_model.dart';
 import '../exceptions/user_exceptions.dart';
 
@@ -43,6 +44,26 @@ class UserService {
     }
   }
 
+  Future<UserModel> getUserById(String userId) async {
+    try {
+      final response = await dio.get('/users/$userId');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final record = response.data;
+        if (record != null) {
+          return UserModel.fromJson(record);
+        } else {
+          throw UserFetchException("L'utilisateur est introuvable ou la réponse est invalide.");
+        }
+      } else {
+        throw UserFetchException("Erreur lors de la récupération de l'utilisateur.");
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? "Erreur réseau lors de la récupération de l'utilisateur";
+      throw UserFetchException(message);
+    }
+  }
+
   Future<UserModel> updateUserProfile(UserModel user) async {
     try {
       final token = await _getToken();
@@ -69,7 +90,7 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUserPosts(String userId,
+  Future<List<PostModel>> getUserPosts(String userId,
       {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -79,8 +100,10 @@ class UserService {
           'offset': offset.toString(),
         },
       );
-      if (response.statusCode == 200) {
-        return response.data['posts'] as List<dynamic>;
+      if (response.statusCode == 200 && response.data["data"] is List) {
+        return (response.data['data'] as List)
+            .map((json) => PostModel.fromJson(json))
+            .toList();
       } else {
         throw UserPostsFetchException(
             "Erreur lors de la récupération des posts de l'utilisateur.");
@@ -95,7 +118,7 @@ class UserService {
     }
   }
 
-  Future<List<UserWhoLikedDto>> getUserLikedPosts(String userId,
+  Future<List<PostModel>> getUserLikedPosts(String userId,
       {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -108,9 +131,9 @@ class UserService {
 
       if (response.statusCode == 200 && response.data["data"] is List) {
           var data = response.data["data"];
-          data = data.map((json) => UserWhoLikedDto.fromJson(json)).toList();
+          data = data.map((json) => PostModel.fromJson(json)).toList();
           return (response.data['data'] as List)
-              .map((json) => UserWhoLikedDto.fromJson(json))
+              .map((json) => PostModel.fromJson(json))
               .toList();
       } else {
         throw UserLikedPostsFetchException(

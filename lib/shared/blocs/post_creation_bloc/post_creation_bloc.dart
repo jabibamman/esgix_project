@@ -9,18 +9,22 @@ part 'post_creation_state.dart';
 class PostCreationBloc extends Bloc<PostCreationEvent, PostCreationState> {
   final PostService postService;
 
-  PostCreationBloc({required this.postService}) : super(PostCreationInitial()) {
+  PostCreationBloc({required this.postService})
+      : super(PostCreationForm(imageUrl: '', isImageUrlInputVisible: false)) {
     on<ToggleImageInput>(_onToggleImageInput);
     on<UpdateImageUrl>(_onUpdateImageUrl);
     on<SubmitPost>(_onSubmitPost);
   }
 
   void _onToggleImageInput(ToggleImageInput event, Emitter<PostCreationState> emit) {
-    if (state is PostCreationForm) {
+    if (state is PostCreationInitial) {
+      emit(PostCreationForm(imageUrl: '', isImageUrlInputVisible: true));
+    } else if (state is PostCreationForm) {
       final currentState = state as PostCreationForm;
       emit(currentState.copyWith(isImageUrlInputVisible: !currentState.isImageUrlInputVisible));
     }
   }
+
 
   void _onUpdateImageUrl(UpdateImageUrl event, Emitter<PostCreationState> emit) {
     if (state is PostCreationForm) {

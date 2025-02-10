@@ -58,7 +58,7 @@ class _TweetCardState extends State<TweetCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildAvatar(widget.post.author.avatar),
+                _buildAvatar(context, widget.post.author.avatar, widget.post.author.id),
                 const SizedBox(width: 12.0),
                 Expanded(
                   child: Column(
@@ -102,7 +102,7 @@ class _TweetCardState extends State<TweetCard> {
 
   Widget _buildContent() {
     return Text(
-      widget.post.content ?? "Contenu indisponible",
+      widget.post.content,
       style: TextStyles.bodyText1,
     );
   }
@@ -156,17 +156,27 @@ class _TweetCardState extends State<TweetCard> {
     );
   }
 
-  Widget _buildAvatar(String? avatarUrl) {
-    return buildImage(
-      imageUrl: avatarUrl,
-      post: widget.post,
-      width: 50,
-      height: 50,
-      borderRadius: 25.0,
-      placeholderColor: AppColors.lightGray,
-      placeholderIcon: Icons.person,
-      disableActions: true,
-      context: context,
+  Widget _buildAvatar(BuildContext context, String? avatarUrl, String userId) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/profile',
+          arguments: userId,
+        );
+      },
+      child: buildImage(
+        imageUrl: avatarUrl,
+        post: widget.post,
+        width: 50,
+        height: 50,
+        borderRadius: 25.0,
+        placeholderColor: AppColors.lightGray,
+        placeholderIcon: Icons.person,
+        disableActions: true,
+        disableOpenDetail: true,
+        context: context,
+      ),
     );
   }
 

@@ -110,7 +110,12 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildAvatar(widget.post.author.avatar),
+        GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, '/profile', arguments: widget.post.author.id);
+          },
+          child:  _buildAvatar(widget.post.author.avatar),
+        ),
         const SizedBox(width: 12.0),
         Expanded(
           child: Column(
@@ -206,6 +211,7 @@ class _TweetDetailCardState extends State<TweetDetailCard> {
       placeholderColor: AppColors.lightGray,
       placeholderIcon: Icons.person,
       disableActions: true,
+      disableOpenDetail: true,
     );
   }
 

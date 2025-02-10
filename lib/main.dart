@@ -3,15 +3,14 @@ import 'package:esgix_project/shared/blocs/home_bloc/home_bloc.dart';
 import 'package:esgix_project/shared/blocs/post_bloc/posts_bloc.dart';
 import 'package:esgix_project/shared/blocs/post_creation_bloc/post_creation_bloc.dart';
 import 'package:esgix_project/shared/blocs/post_detail/post_detail_bloc.dart';
+import 'package:esgix_project/shared/blocs/profile_bloc/profile_bloc.dart';
 import 'package:esgix_project/shared/blocs/register_bloc/register_bloc.dart';
 import 'package:esgix_project/shared/blocs/search_bloc/search_bloc.dart';
 import 'package:esgix_project/shared/core/app_config.dart';
 import 'package:esgix_project/shared/core/routes.dart';
 import 'package:esgix_project/shared/services/auth_service.dart';
-import 'package:esgix_project/shared/services/image_service.dart';
 import 'package:esgix_project/shared/services/post_service.dart';
 import 'package:esgix_project/shared/services/user_service.dart';
-import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:esgix_project/shared/widgets/main_screen.dart';
@@ -24,11 +23,9 @@ void main() async {
   final postService = PostService();
   final userService = UserService();
   final secureStorage = FlutterSecureStorage();
-  final imageService = ImageService();
 
 
   runApp(EsgiXApp(authService: authService, postService: postService, userService: userService,
-      imageService: imageService,
       secureStorage: secureStorage));
 }
 
@@ -36,11 +33,10 @@ class EsgiXApp extends StatelessWidget {
   final AuthService authService;
   final PostService postService;
   final UserService userService;
-  final ImageService imageService;
   final FlutterSecureStorage secureStorage;
 
   const EsgiXApp({super.key, required this.authService, required this.postService,
-    required this.userService, required this.imageService,
+    required this.userService,
     required this.secureStorage});
 
   @override
@@ -50,7 +46,6 @@ class EsgiXApp extends StatelessWidget {
         RepositoryProvider.value(value: authService),
         RepositoryProvider.value(value: postService),
         RepositoryProvider.value(value: userService),
-        RepositoryProvider.value(value: imageService),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -61,6 +56,7 @@ class EsgiXApp extends StatelessWidget {
           BlocProvider(create: (context) => PostsBloc(postService, userService)),
           BlocProvider(create: (context) => PostDetailBloc(postService: postService)),
           BlocProvider(create: (context) => PostCreationBloc(postService: postService)),
+          BlocProvider(create: (context) => ProfileBloc(userService: userService)),
         ],
         child: FutureBuilder<Widget>(
           future: AppRoutes.getInitialRoute(),

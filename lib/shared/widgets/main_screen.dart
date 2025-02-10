@@ -4,6 +4,7 @@ import 'package:esgix_project/unauthenticated/login/login_screen.dart';
 import 'package:esgix_project/unauthenticated/register/register_screen.dart';
 import 'package:flutter/material.dart';
 import '../../authenticated/home/home_screen.dart';
+import '../../authenticated/profile/profile_screen.dart';
 import '../../authenticated/search/search_screen.dart';
 import '../../authenticated/postDetails/post_details_screen.dart';
 import '../../shared/widgets/custom_bottom_nav_bar.dart';
@@ -78,9 +79,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => const RegisterScreen(),
       );
+    case '/profile':
+    final userId = settings.arguments as String;
+    return MaterialPageRoute(
+      builder: (context) => ProfileScreen(userId: userId),
+    );
     default:
       return MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => HomeScreen(),
       );
    }
 }
