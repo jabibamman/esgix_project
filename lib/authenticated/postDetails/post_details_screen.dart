@@ -22,7 +22,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     super.initState();
     final postId = widget.post?.id ??
         (ModalRoute.of(context)?.settings.arguments as String? ?? '');
-    context.read<PostDetailBloc>().add(LoadPostDetail(postId: postId, post: widget.post));
+      context.read<PostDetailBloc>().add(LoadPostDetail(postId: postId, post: widget.post));
   }
 
   @override

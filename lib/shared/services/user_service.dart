@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
 import '../dto/UserWhoLikedDto.dart';
+import '../models/post_model.dart';
 import '../models/user_model.dart';
 import '../exceptions/user_exceptions.dart';
 
@@ -50,7 +51,6 @@ class UserService {
       if (response.statusCode == 200 && response.data != null) {
         final record = response.data;
         if (record != null) {
-          print(record);
           return UserModel.fromJson(record);
         } else {
           throw UserFetchException("L'utilisateur est introuvable ou la réponse est invalide.");
@@ -90,7 +90,7 @@ class UserService {
     }
   }
 
-  Future<List<dynamic>> getUserPosts(String userId,
+  Future<List<PostModel>> getUserPosts(String userId,
       {int page = 0, int offset = 10}) async {
     try {
       final response = await dio.get(
@@ -100,8 +100,10 @@ class UserService {
           'offset': offset.toString(),
         },
       );
-      if (response.statusCode == 200) {
-        return response.data['posts'] as List<dynamic>;
+      if (response.statusCode == 200 && response.data["data"] is List) {
+        return (response.data['data'] as List)
+            .map((json) => PostModel.fromJson(json))
+            .toList();
       } else {
         throw UserPostsFetchException(
             "Erreur lors de la récupération des posts de l'utilisateur.");
