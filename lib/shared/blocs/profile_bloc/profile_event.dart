@@ -33,3 +33,23 @@ class LoadMoreUserPosts extends ProfileEvent {
   @override
   List<Object> get props => [userId, offset];
 }
+
+class FetchUserLikedPosts extends ProfileEvent {
+  final String userId;
+  final int offset;
+
+  FetchUserLikedPosts({required this.userId, this.offset = 10});
+
+  @override
+  List<Object> get props => [userId, offset];
+}
+
+class LoadMoreUserLikedPosts extends ProfileEvent {
+  final String userId;
+  final int offset;
+
+  LoadMoreUserLikedPosts({required this.userId, this.offset = 10});
+
+  @override
+  List<Object> get props => [userId, offset];
+}

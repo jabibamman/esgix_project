@@ -28,10 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    // Récupérer l'utilisateur stocké s'il est déjà connecté
     context.read<AuthBloc>().add(FetchStoredUser());
-
-    // Charger les posts dès l’ouverture de l’application
     context.read<HomeBloc>().add(FetchPosts());
 
     _scrollController.addListener(() {

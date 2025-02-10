@@ -15,6 +15,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<FetchUserProfile>(_onFetchUserProfile);
     on<FetchUserPosts>(_onFetchUserPosts);
     on<LoadMoreUserPosts>(_onLoadMoreUserPosts);
+    on<FetchUserLikedPosts>(_onFetchUserLikedPosts);
+    on<LoadMoreUserLikedPosts>(_onLoadMoreUserLikedPosts);
   }
 
   Future<void> _onFetchUserProfile(
@@ -59,6 +61,38 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         } else {
           final allPosts = List<PostModel>.from(currentState.posts)..addAll(newPosts);
           emit(ProfilePostsLoaded(posts: allPosts, page: nextPage, hasReachedMax: newPosts.length < event.offset));
+        }
+      } catch (e) {
+        emit(ProfileError(e.toString()));
+      }
+    }
+  }
+  Future<void> _onFetchUserLikedPosts(
+      FetchUserLikedPosts event, Emitter<ProfileState> emit) async {
+    emit(ProfilePostsLoading());
+    try {
+      final posts = await userService.getUserLikedPosts(event.userId, page: 0, offset: event.offset);
+      final hasReachedMax = posts.length < event.offset;
+
+      emit(ProfileLikedPostsLoaded(posts: posts, page: 0, hasReachedMax: hasReachedMax));
+    } catch (e) {
+      emit(ProfileError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadMoreUserLikedPosts(
+      LoadMoreUserLikedPosts event, Emitter<ProfileState> emit) async {
+    final currentState = state;
+    if (currentState is ProfileLikedPostsLoaded && !currentState.hasReachedMax) {
+      try {
+        final nextPage = currentState.page + 1;
+        final newPosts = await userService.getUserLikedPosts(event.userId, page: nextPage, offset: event.offset);
+
+        if (newPosts.isEmpty) {
+          emit(currentState.copyWith(hasReachedMax: true));
+        } else {
+          final allPosts = List<PostModel>.from(currentState.posts)..addAll(newPosts);
+          emit(ProfileLikedPostsLoaded(posts: allPosts, page: nextPage, hasReachedMax: newPosts.length < event.offset));
         }
       } catch (e) {
         emit(ProfileError(e.toString()));

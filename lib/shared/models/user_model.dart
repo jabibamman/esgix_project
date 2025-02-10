@@ -63,4 +63,9 @@ class UserModel {
       if (verified != null) 'verified': verified,
     };
   }
+
+  @override
+  String toString() {
+    return 'UserModel(apiKey: $apiKey, avatar: $avatar, collectionId: $collectionId, collectionName: $collectionName, created: $created, description: $description, email: $email, emailVisibility: $emailVisibility, id: $id, updated: $updated, username: $username, password: $password, verified: $verified)';
+  }
 }

@@ -58,3 +58,27 @@ class ProfilePostsError extends ProfileState {
   @override
   List<Object?> get props => [message];
 }
+
+class ProfileLikedPostsLoaded extends ProfileState {
+  final List<PostModel> posts;
+  final int page;
+  final bool hasReachedMax;
+
+  ProfileLikedPostsLoaded({
+    required this.posts,
+    required this.page,
+    required this.hasReachedMax,
+  });
+
+  ProfileLikedPostsLoaded copyWith({
+    List<PostModel>? posts,
+    int? page,
+    bool? hasReachedMax,
+  }) {
+    return ProfileLikedPostsLoaded(
+      posts: posts ?? this.posts,
+      page: page ?? this.page,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+    );
+  }
+}
