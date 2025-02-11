@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:esgix_project/shared/models/user_model.dart';
 
 abstract class RegisterState extends Equatable {
   final String? email;
@@ -69,7 +70,14 @@ class RegisterStep2 extends RegisterState {
 
 class RegisterLoading extends RegisterState {}
 
-class RegisterSuccess extends RegisterState {}
+class RegisterSuccess extends RegisterState {
+  final UserModel user;
+
+  const RegisterSuccess(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
 
 class RegisterFailure extends RegisterState {
   final String error;

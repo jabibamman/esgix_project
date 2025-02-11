@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/app_config.dart';
+import '../dto/UserUpdateDto.dart';
 import '../dto/UserWhoLikedDto.dart';
 import '../models/post_model.dart';
 import '../models/user_model.dart';
@@ -67,9 +68,14 @@ class UserService {
   Future<UserModel> updateUserProfile(UserModel user) async {
     try {
       final token = await _getToken();
+      final userDto = UserUpdateDto.fromUser(user);
+
       final response = await dio.put(
         '/users/${user.id}',
-        data: user.toJson(),
+        data: {
+        userDto.description != null ? 'description' : null: userDto.description,
+        userDto.avatar != null ? 'avatar' : null: userDto.avatar,
+        },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
         ),

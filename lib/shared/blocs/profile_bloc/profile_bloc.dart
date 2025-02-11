@@ -1,7 +1,7 @@
-// profile_bloc.dart
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/post_model.dart';
+import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
@@ -10,19 +10,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserService userService;
   final int offset = 10;
 
-  ProfileBloc({required this.userService}) : super( ProfileCompositeState()) {
+  ProfileBloc({required this.userService}) : super(ProfileCompositeState()) {
     on<FetchUserProfile>(_onFetchUserProfile);
     on<FetchUserPosts>(_onFetchUserPosts);
     on<LoadMoreUserPosts>(_onLoadMoreUserPosts);
     on<FetchUserLikedPosts>(_onFetchUserLikedPosts);
     on<LoadMoreUserLikedPosts>(_onLoadMoreUserLikedPosts);
+    on<UpdateUserProfileEvent>(_onUpdateUserProfile);
   }
-
 
   Future<void> _onFetchUserProfile(FetchUserProfile event, Emitter<ProfileState> emit) async {
     try {
       final user = await userService.getUserById(event.userId);
-      final currentState = state is ProfileCompositeState ? state as ProfileCompositeState :  ProfileCompositeState();
+      final currentState = state is ProfileCompositeState ? state as ProfileCompositeState : ProfileCompositeState();
       emit(currentState.copyWith(user: user));
     } catch (e) {
       emit(ProfileCompositeState(error: e.toString()));
@@ -30,7 +30,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onFetchUserPosts(FetchUserPosts event, Emitter<ProfileState> emit) async {
-    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState :  ProfileCompositeState();
+    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState : ProfileCompositeState();
     emit(currentState.copyWith(loadingTweets: true));
     try {
       final posts = await userService.getUserPosts(event.userId, page: 0, offset: event.offset);
@@ -47,7 +47,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onLoadMoreUserPosts(LoadMoreUserPosts event, Emitter<ProfileState> emit) async {
-    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState :  ProfileCompositeState();
+    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState : ProfileCompositeState();
     if (!currentState.tweetsHasReachedMax) {
       try {
         final nextPage = currentState.tweetsPage + 1;
@@ -86,7 +86,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onLoadMoreUserLikedPosts(LoadMoreUserLikedPosts event, Emitter<ProfileState> emit) async {
-    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState :  ProfileCompositeState();
+    final currentState = state is ProfileCompositeState ? state as ProfileCompositeState : ProfileCompositeState();
     if (!currentState.likedPostsHasReachedMax) {
       try {
         final nextPage = currentState.likedPostsPage + 1;
@@ -106,4 +106,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       }
     }
   }
+
+  Future<void> _onUpdateUserProfile(UpdateUserProfileEvent event, Emitter<ProfileState> emit) async {
+    try {
+      final currentUserId = await userService.getId();
+      if (event.updatedUser.id != currentUserId) {
+        emit(ProfileCompositeState(error: "Vous ne pouvez pas modifier le profil d'un autre utilisateur."));
+        return;
+      }
+      final updatedUser = await userService.updateUserProfile(event.updatedUser);
+      final currentState = state is ProfileCompositeState ? state as ProfileCompositeState : ProfileCompositeState();
+      emit(currentState.copyWith(user: updatedUser));
+    } catch (e) {
+      emit(ProfileCompositeState(error: e.toString()));
+    }
+  }
+
 }

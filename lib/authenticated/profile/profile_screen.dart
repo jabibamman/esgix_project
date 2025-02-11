@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:esgix_project/shared/services/user_service.dart';
+import 'package:esgix_project/shared/blocs/profile_bloc/profile_bloc.dart';
+import 'package:esgix_project/shared/blocs/profile_bloc/profile_event.dart';
+import 'package:esgix_project/shared/blocs/profile_bloc/profile_state.dart';
+import 'package:esgix_project/shared/core/image_utils.dart';
+import 'package:esgix_project/shared/widgets/tweet_card.dart';
+import 'package:esgix_project/shared/widgets/update_profile_widget.dart';
 import 'package:esgix_project/theme/colors.dart';
-import '../../shared/blocs/profile_bloc/profile_bloc.dart';
-import '../../shared/blocs/profile_bloc/profile_event.dart';
-import '../../shared/blocs/profile_bloc/profile_state.dart';
-import '../../shared/core/image_utils.dart';
-import '../../shared/widgets/tweet_card.dart';
+import 'package:esgix_project/theme/images.dart';
+import 'package:esgix_project/shared/services/user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
-  const ProfileScreen({super.key, required this.userId});
+  const ProfileScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -71,6 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Column(
             children: [
               _buildProfileHeader(),
+              _buildBar(),
               Expanded(child: _buildTabBarView()),
             ],
           ),
@@ -85,80 +88,125 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       builder: (context, state) {
         if (state is ProfileCompositeState && state.user != null) {
           final user = state.user!;
-
-        return Column(
-            children: [
-              Stack(
-                alignment: Alignment.centerLeft,
+          return FutureBuilder<String>(
+            future: RepositoryProvider.of<UserService>(context).getId(),
+            builder: (context, snapshot) {
+              final isCurrentUser = snapshot.hasData && snapshot.data == user.id;
+              return Column(
                 children: [
-                  Column(
+                  Stack(
                     children: [
-                      Container(
-                        color: AppColors.darkGray,
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.all(16),
-                        height: 150,
-                        child: _buildBackButton(),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        height: 213,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 40),
-                            Text(
-                              user.username,
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                            ),
-                            if (user.emailVisibility ?? false)
-                              Text(
-                                user.email,
-                                style: const TextStyle(fontSize: 14, color: AppColors.darkGray),
-                              ),
-                            const SizedBox(height: 10),
-                            Text(user.description),
-                            const SizedBox(height: 10),
-                            if (user.created != null)
-                              Row(
-                                children: [
-                                  const Icon(Icons.date_range, color: AppColors.darkGray, size: 16),
+                      Column(
+                        children: [
+                          Container(
+                            color: AppColors.darkGray,
+                            width: double.infinity,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.all(16),
+                            height: 150,
+                            child: _buildBackButton(),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            height: 213,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 40),
+                                Text(
+                                  user.username,
+                                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                ),
+                                if (user.emailVisibility ?? false)
                                   Text(
-                                    ' Joined in ${user.created!}',
-                                    style: const TextStyle(color: AppColors.darkGray),
+                                    user.email,
+                                    style: const TextStyle(fontSize: 14, color: AppColors.darkGray),
                                   ),
-                                ],
-                              ),
-                            const SizedBox(height: 10),
-                            _buildFollowsCount(following: 217, followers: 118),
-                          ],
+                                const SizedBox(height: 10),
+                                Text(user.description),
+                                const SizedBox(height: 10),
+                                if (user.created != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.date_range, color: AppColors.darkGray, size: 16),
+                                      Text(
+                                        ' Joined in ${user.created!}',
+                                        style: const TextStyle(color: AppColors.darkGray),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                _buildFollowsCount(following: 217, followers: 118),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        top: 105,
+                        left: 16,
+                        child: buildImage(
+                          imageUrl: user.avatar,
+                          context: context,
+                          width: 80,
+                          height: 80,
+                          borderRadius: 40,
                         ),
                       ),
+                      if (isCurrentUser)
+                        Positioned(
+                          top: 30,
+                          right: 16,
+                          child: IconButton(
+                            icon: const Icon(Icons.edit, color: AppColors.primary, size: 28),
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpdateProfileWidget(currentUser: user),
+                                ),
+                              );
+                              if (result == true) {
+                                _profileBloc.add(FetchUserProfile(widget.userId));
+                              }
+                            },
+                          ),
+                        ),
                     ],
                   ),
-                  Positioned(
-                    top: 105,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: buildImage(
-                        imageUrl: user.avatar,
-                        context: context,
-                        width: 80,
-                        height: 80,
-                        borderRadius: 40,
-                      ),
-                    ),
-                  ),
                 ],
-              ),
-              _buildBar(),
-            ],
+              );
+            },
           );
         }
         return const SizedBox(height: 300, child: Center(child: CircularProgressIndicator()));
       },
+    );
+  }
+
+  Widget _buildBackButton() {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Container(
+        alignment: Alignment.center,
+        color: AppColors.primary,
+        width: 40,
+        height: 40,
+        padding: const EdgeInsets.only(left: 8.0),
+        child: const Icon(Icons.arrow_back_ios, color: AppColors.white),
+      ),
+    );
+  }
+
+  Widget _buildFollowsCount({required int following, required int followers}) {
+    return Row(
+      children: [
+        Text(following.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        const Text(' Following    ', style: TextStyle(color: AppColors.darkGray)),
+        Text(followers.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        const Text(' Followers', style: TextStyle(color: AppColors.darkGray)),
+      ],
     );
   }
 
@@ -191,8 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildUserPosts() {
     return BlocBuilder<ProfileBloc, ProfileState>(
-      buildWhen: (previous, current) =>
-      current is ProfileCompositeState,
+      buildWhen: (previous, current) => current is ProfileCompositeState,
       builder: (context, state) {
         if (state is ProfileCompositeState) {
           if (state.loadingTweets) {
@@ -223,8 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildUserLikedPosts() {
     return BlocBuilder<ProfileBloc, ProfileState>(
-      buildWhen: (previous, current) =>
-      current is ProfileCompositeState,
+      buildWhen: (previous, current) => current is ProfileCompositeState,
       builder: (context, state) {
         if (state is ProfileCompositeState) {
           if (state.loadingLikedPosts) {
@@ -252,31 +298,4 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       },
     );
   }
-
-  Widget _buildBackButton() {
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Container(
-        alignment: Alignment.center,
-        color: AppColors.primary,
-        width: 40,
-        height: 40,
-        padding: const EdgeInsets.only(left: 8.0),
-        child: const Icon(Icons.arrow_back_ios, color: AppColors.white),
-      ),
-    );
-  }
-
-  Widget _buildFollowsCount({required int following, required int followers}) {
-    return Row(
-      children: [
-        Text(following.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        const Text(' Following    ', style: TextStyle(color: AppColors.darkGray)),
-        Text(followers.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        const Text(' Followers', style: TextStyle(color: AppColors.darkGray)),
-      ],
-    );
-  }
-
-
 }

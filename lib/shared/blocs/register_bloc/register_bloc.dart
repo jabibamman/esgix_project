@@ -58,8 +58,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           description: event.description,
         );
         await authService.register(user);
-        authService.login(event.email, event.password);
-        emit(RegisterSuccess());
+        final userRegistered = await authService.login(event.email, event.password);
+        emit(RegisterSuccess(userRegistered));
       } catch (e) {
         emit(RegisterFailure(e.toString()));
       }

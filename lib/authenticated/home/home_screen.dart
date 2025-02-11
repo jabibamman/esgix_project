@@ -6,6 +6,7 @@ import '../../shared/blocs/auth_bloc/auth_state.dart';
 import '../../shared/blocs/home_bloc/home_bloc.dart';
 import '../../shared/blocs/home_bloc/home_event.dart';
 import '../../shared/blocs/home_bloc/home_state.dart';
+import '../../shared/blocs/register_bloc/register_state.dart';
 import '../../shared/core/image_utils.dart';
 import '../../shared/models/user_model.dart';
 import '../../shared/widgets/tweet_card.dart';
@@ -75,7 +76,11 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, state) {
                 if (state is AuthAuthenticated) {
                   return _buildAppBar(context, state.user);
-                } else {
+                } else if (state is RegisterSuccess) {
+                  final registerState = state as RegisterSuccess;
+                  return _buildAppBar(context, registerState.user);
+                }
+                else {
                   return _buildAppBarPlaceholder();
                 }
               },
